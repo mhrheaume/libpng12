@@ -1,4 +1,7 @@
 libpng12, (C) 2014 Matthew Rheaume
 ==================================
 
-These files contain D bindings for libpng, version 1.2.X.
+These files contain D bindings for libpng, version 1.2.X. Basic functionality
+has been tested under Linux.
+
+These files are licensed under the same license as libpng.
