@@ -531,6 +531,7 @@ alias PNG_LIBPNG_BUILD_BASE_TYPE = PNG_LIBPNG_BUILD_STABLE;
 enum PNG_LIBPNG_VER = 10250; /* 1.2.50 */
 
 version(PNG_VERSION_INFO_ONLY) {
+} else {
 /* Include the compression library's header */
 	import etc.c.zlib;
 } // PNG_VERSION_INFO_ONLY
@@ -609,7 +610,6 @@ enum png_voidp_NULL = cast(png_voidp)null;
 enum png_write_status_ptr_NULL = cast(png_write_status_ptr)null;
 } // !PNG_NO_TYPECAST_NULL
 
-// TODO
 // /* Variables declared in png.c - only it needs to define PNG_NO_EXTERN */
 version (PNG_NO_EXTERN) {
 } else version (PNG_ALWAYS_EXTERN) {
@@ -618,7 +618,7 @@ version (PNG_NO_EXTERN) {
       extern const char png_libpng_ver[18];
    } else {
       @property auto png_libpng_ver() {
-         return png_libpng_ver(null);
+         return png_get_header_ver(null);
       }
    } // PNG_USE_GLOBAL_ARRAYS
 
@@ -641,7 +641,7 @@ version (PNG_NO_EXTERN) {
       extern const char png_libpng_ver[18];
    } else {
       @property auto png_libpng_ver() {
-         return png_libpng_ver(null);
+         return png_get_header_ver(null);
       }
    } // PNG_USE_GLOBAL_ARRAYS
 
@@ -659,32 +659,6 @@ version (PNG_NO_EXTERN) {
       */
    }
 } // !PNG_ALWAYS_EXTERN
-
-// /* Version information for C files, stored in png.c.  This had better match
-//  * the version above.
-//  */
-// #ifdef PNG_USE_GLOBAL_ARRAYS
-// PNG_EXPORT_VAR (PNG_CONST char) png_libpng_ver[18];
-//   /* Need room for 99.99.99beta99z */
-// #else
-// #define png_libpng_ver png_get_header_ver(NULL)
-// #endif
-// 
-// #ifdef PNG_USE_GLOBAL_ARRAYS
-// /* This was removed in version 1.0.5c */
-// /* Structures to facilitate easy interlacing.  See png.c for more details */
-// PNG_EXPORT_VAR (PNG_CONST int FARDATA) png_pass_start[7];
-// PNG_EXPORT_VAR (PNG_CONST int FARDATA) png_pass_inc[7];
-// PNG_EXPORT_VAR (PNG_CONST int FARDATA) png_pass_ystart[7];
-// PNG_EXPORT_VAR (PNG_CONST int FARDATA) png_pass_yinc[7];
-// PNG_EXPORT_VAR (PNG_CONST int FARDATA) png_pass_mask[7];
-// PNG_EXPORT_VAR (PNG_CONST int FARDATA) png_pass_dsp_mask[7];
-// /* This isn't currently used.  If you need it, see png.c for more details.
-// PNG_EXPORT_VAR (PNG_CONST int FARDATA) png_pass_height[7];
-// */
-// #endif
-// 
-// #endif /* PNG_NO_EXTERN */
 
 struct png_color {
 	png_byte red;
@@ -743,8 +717,8 @@ struct png_sPLT
    png_sPLT_entryp entries;  /* palette entries */
    png_int_32 nentries;      /* number of palette entries */
 }
-alias png_sPLT_t * png_sPLT_tp;
-alias png_sPLT_t ** png_sPLT_tpp;
+alias png_sPLT * png_sPLT_tp;
+alias png_sPLT ** png_sPLT_tpp;
 
 version(PNG_TEXT_SUPPORTED) {
 /* png_text holds the contents of a text/ztxt/itxt chunk in a PNG file,
