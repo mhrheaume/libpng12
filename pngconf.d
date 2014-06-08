@@ -1,4 +1,4 @@
-module libpng.pngconf;
+module libpng12.pngconf;
 
 /* pngconf.h - machine configurable file for libpng
  *

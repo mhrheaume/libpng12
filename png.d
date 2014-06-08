@@ -1,4 +1,4 @@
-module libpng.png;
+module libpng12.png;
 
 /* png.h - header file for PNG reference library
  *
@@ -537,7 +537,7 @@ version(PNG_VERSION_INFO_ONLY) {
 } // PNG_VERSION_INFO_ONLY
 
 /* Include all user configurable info, including optional assembler routines */
-import libpng.pngconf;
+import libpng12.pngconf;
 
 /*
  * Added at libpng-1.2.8 */
