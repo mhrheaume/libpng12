@@ -1283,6 +1283,7 @@ alias void function(png_structp, png_voidp) png_free_ptr;
 struct png_struct_def
 {
 version(PNG_SETJMP_SUPPORTED) {
+   import core.sys.posix.setjmp;
    jmp_buf jmpbuf;            /* used in png_error */
 } // PNG_SETJMP_SUPPORTED
    deprecated png_error_ptr error_fn;    /* function for printing errors and aborting */
