@@ -81,8 +81,9 @@ version (PNG_VERSION_INFO_ONLY) {
 /* Added at libpng-1.2.19, removed at libpng-1.2.20 because it caused trouble
    Restored at libpng-1.2.21 */
 version (PNG_NO_WARN_UNINITIALIZED_ROW) {
+   enum PNG_WARN_UNINITIALIZED_ROW = 0;
 } else {
-   version = PNG_WARN_UNINITIALIZED_ROW;
+   enum PNG_WARN_UNINITIALIZED_ROW = 1;
 } // PNG_NO_WARN_UNINITIALIZED_ROW
 /* End of material added at libpng-1.2.19/1.2.21 */
 
@@ -104,15 +105,17 @@ enum PNG_ZBUF_SIZE = 8192;
 /* Enable if you want a write-only libpng */
 
 version (PNG_NO_READ_SUPPORTED) {
+   enum PNG_READ_SUPPORTED = 0;
 } else {
-   version = PNG_READ_SUPPORTED;
+   enum PNG_READ_SUPPORTED = 1;
 } // PNG_NO_READ_SUPPORTED
 
 /* Enable if you want a read-only libpng */
 
 version (PNG_NO_WRITE_SUPPORTED) {
+   enum PNG_WRITE_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_SUPPORTED;
+   enum PNG_WRITE_SUPPORTED = 1;
 } // PNG_NO_WRITE_SUPPORTED
 
 /* Enabled in 1.2.41. */
@@ -129,34 +132,40 @@ version (PNG_NO_WRITE_SUPPORTED) {
 
 /* Added in libpng-1.2.41 */
 version (PNG_NO_WARNINGS) {
+   enum PNG_WARNINGS_SUPPORTED = 0;
 } else {
-   version = PNG_WARNINGS_SUPPORTED;
+   enum PNG_WARNINGS_SUPPORTED = 1;
 } // PNG_NO_WARNINGS
 
 version (PNG_NO_ERROR_TEXT) {
+   enum PNG_ERROR_TEXT_SUPPORTED = 0;
 } else {
-   version = PNG_ERROR_TEXT_SUPPORTED;
+   enum PNG_ERROR_TEXT_SUPPORTED = 1;
 } // PNG_NO_ERROR_TEXT
 
 version (PNG_NO_CHECK_cHRM) {
+   enum PNG_CHECK_cHRM_SUPPORTED = 0;
 } else {
-   version = PNG_CHECK_cHRM_SUPPORTED;
+   enum PNG_CHECK_cHRM_SUPPORTED = 1;
 } // PNG_NO_CHECK_cHRM
 
 /* Enabled by default in 1.2.0.  You can disable this if you don't need to
  * support PNGs that are embedded in MNG datastreams
  */
 version (PNG_1_0_X) {
+   enum PNG_MNG_FEATURES_SUPPORTED = 0;
 } else {
    version (PNG_NO_MNG_FEATURES) {
+      enum PNG_MNG_FEATURES_SUPPORTED = 0;
    } else {
-      version = PNG_MNG_FEATURES_SUPPORTED;
+      enum PNG_MNG_FEATURES_SUPPORTED = 1;
    } // PNG_NO_MNG_FEATURES
 } // PNG_1_0_X
 
 version (PNG_NO_FLOATING_POINT_SUPPORTED) {
+   enum PNG_FLOATING_POINT_SUPPORTED = 0;
 } else {
-   version = PNG_FLOATING_POINT_SUPPORTED;
+   enum PNG_FLOATING_POINT_SUPPORTED = 1;
 } // PNG_NO_FLOATING_POINT_SUPPORTED
 
 /* If you are running on a machine where you cannot allocate more
@@ -168,10 +177,7 @@ version (PNG_NO_FLOATING_POINT_SUPPORTED) {
 #define PNG_MAX_MALLOC_64K
  */
 version (MAXSEG_64K) {
-   version (PNG_MAX_MALLOC_64K) {
-   } else {
-      version = PNG_MAX_MALLOC_64K;
-   } // PNG_MAX_MALLOC_64K
+   version = PNG_MAX_MALLOC_64K;
 } // MAXSEG_64K
 
 /* Special munging to support doing things the 'cygwin' way:
@@ -266,8 +272,9 @@ version (MAXSEG_64K) {
  */
 
 version (PNG_NO_STDIO) {
+   enum PNG_STDIO_SUPPORTED = 0;
 } else {
-   version = PNG_STDIO_SUPPORTED;
+   enum PNG_STDIO_SUPPORTED = 1;
 } // PNG_NO_STDIO
 
 version (_WIN32_WCE) {
@@ -284,13 +291,7 @@ version (_WIN32_WCE) {
 } // _WIN32_WCE
 
 version (PNG_BUILD_DLL) {
-   version (PNG_CONSOLE_IO_SUPPORTED) {
-   } else {
-      version (PNG_NO_CONSOLE_IO) {
-      } else {
-         version = PNG_NO_CONSOLE_IO;
-      } // PNG_NO_CONSOLE_IO
-   } // PNG_CONSOLE_IO_SUPPORTED
+   version = PNG_NO_CONSOLE_IO;
 } // PNG_BUILD_DLL
 
 version (PNG_NO_STDIO) {
@@ -310,10 +311,9 @@ version (PNG_NO_STDIO) {
 } // PNG_NO_STDIO
 
 version (PNG_NO_CONSOLE_IO) {
+   enum PNG_CONSOLE_IO_SUPPORTED = 0;
 } else {
-   version (PNG_CONSOLE_IO_SUPPORTED) {
-      version = PNG_CONSOLE_IO_SUPPORTED;
-   } // PNG_CONSOLE_IO_SUPPORTED
+   enum PNG_CONSOLE_IO_SUPPORTED = 1;
 } // PNG_NO_CONSOLE_IO
 
 /* This macro protects us against machines that don't have function
@@ -376,11 +376,16 @@ version (MACOS) {
 } // MACOS
 
 version (PNG_SETJMP_NOT_SUPPORTED) {
+   enum PNG_SETJMP_SUPPORTED = 0;
 } else {
-   version = PNG_NO_SETJMP_SUPPORTED;
+   version (PNG_NO_SETJMP_SUPPORTED) {
+      enum PNG_SETJMP_SUPPORTED = 0;
+   } else {
+      enum PNG_SETJMP_SUPPORTED = 1;
+   } // PNG_NO_SETJMP_SUPPORTED
 } // PNG_SETJMP_NOT_SUPPORTED
 
-version (PNG_SETJMP_SUPPORTED) {
+static if (PNG_SETJMP_SUPPORTED) {
 /* This is an attempt to force a single setjmp behaviour on Linux.  If
  * the X config stuff didn't define _BSD_SOURCE we wouldn't need this.
  *
@@ -447,7 +452,7 @@ import std.c.stdlib;
  * them inside an appropriate ifdef/endif pair for portability.
  */
 
-version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
    version (MACOS) {
      /* We need to check that <math.h> hasn't already been included earlier
       * as it seems it doesn't agree with <fp.h>, yet we should really use
@@ -564,11 +569,11 @@ version (PNG_1_0_X) {
    version = PNG_NO_iTXt_SUPPORTED;
    version = PNG_NO_READ_iTXt;
    version = PNG_NO_WRITE_iTXt;
-}
+} // PNG_1_2_X
 
 version (PNG_NO_iTXt_SUPPORTED) {
 } else {
-   version (PNG_READ_iTXt_SUPPORTED) {
+   static if (PNG_READ_iTXt_SUPPORTED) {
    } else {
       version (PNG_NO_READ_iTXt) {
       } else {
@@ -576,7 +581,7 @@ version (PNG_NO_iTXt_SUPPORTED) {
       } // PNG_NO_READ_iTXt
    } // PNG_READ_iTXt_SUPPORTED
 
-   version (PNG_WRITE_iTXt_SUPPORTED) {
+   static if (PNG_WRITE_iTXt_SUPPORTED) {
    } else {
       version (PNG_NO_WRITE_iTXt) {
       } else {
@@ -616,129 +621,153 @@ version (PNG_LEGACY_SUPPORTED) {
 } // PNG_LEGACY_SUPPORTED
 
 /* Ignore attempt to turn off both floating and fixed point support */
-version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
+   enum PNG_FIXED_POINT_SUPPORTED = 0;
 } else {
    version (PNG_NO_FIXED_POINT_SUPPORTED) {
+      enum PNG_FIXED_POINT_SUPPORTED = 0;
    } else {
-      version = PNG_FIXED_POINT_SUPPORTED;
+      enum PNG_FIXED_POINT_SUPPORTED = 1;
    } // PNG_NO_FIXED_POINT_SUPPORTED
 } // PNG_FLOATING_POINT_SUPPORTED
 
 version (PNG_NO_FREE_ME) {
-   version = PNG_FREE_ME_SUPPORTED;
+   enum PNG_FREE_ME_SUPPORTED = 1;
+} else {
+   enum PNG_FREE_ME_SUPPORTED = 0;
 } // PNG_NO_FREE_ME
 
-version (PNG_READ_SUPPORTED) {
+static if (PNG_READ_SUPPORTED) {
 
 version (PNG_READ_TRANSFORMS_NOT_SUPPORTED) {
+   enum PNG_READ_TRANSFORMS_SUPPORTED = 0;
 } else {
    version (PNG_NO_READ_TRANSFORMS) {
+      enum PNG_READ_TRANSFORMS_SUPPORTED = 0;
    } else {
-      version = PNG_READ_TRANSFORMS_SUPPORTED;
+      enum PNG_READ_TRANSFORMS_SUPPORTED = 1;
    }
 }
 
-version (PNG_READ_TRANSFORMS_SUPPORTED) {
+static if (PNG_READ_TRANSFORMS_SUPPORTED) {
    version (PNG_NO_READ_EXPAND) {
+      enum PNG_READ_EXPAND_SUPPORTED = 0;
    } else {
-      version = PNG_READ_EXPAND_SUPPORTED;
+      enum PNG_READ_EXPAND_SUPPORTED = 1;
    } // PNG_NO_READ_EXPAND
    version (PNG_NO_READ_SHIFT) {
+      enum PNG_READ_SHIFT_SUPPORTED = 0;
    } else {
-      version = PNG_READ_SHIFT_SUPPORTED;
+      enum PNG_READ_SHIFT_SUPPORTED = 1;
    } // PNG_NO_READ_SHIFT
    version (PNG_NO_READ_PACK) {
+      enum PNG_READ_PACK_SUPPORTED = 0;
    } else {
-      version = PNG_READ_PACK_SUPPORTED;
+      enum PNG_READ_PACK_SUPPORTED = 1;
    } // PNG_NO_READ_PACK
    version (PNG_NO_READ_BGR) {
+      enum PNG_READ_BGR_SUPPORTED = 0;
    } else {
-      version = PNG_READ_BGR_SUPPORTED;
+      enum PNG_READ_BGR_SUPPORTED = 1;
    } // PNG_NO_READ_BGR
    version (PNG_NO_READ_SWAP) {
+      enum PNG_READ_SWAP_SUPPORTED = 0;
    } else {
-      version = PNG_READ_SWAP_SUPPORTED;
+      enum PNG_READ_SWAP_SUPPORTED = 1;
    } // PNG_NO_READ_SWAP
    version (PNG_NO_READ_PACKSWAP) {
+      enum PNG_READ_PACKSWAP_SUPPORTED = 0;
    } else {
-      version = PNG_READ_PACKSWAP_SUPPORTED;
+      enum PNG_READ_PACKSWAP_SUPPORTED = 1;
    } // PNG_NO_READ_PACKSWAP
    version (PNG_NO_READ_INVERT) {
+      enum PNG_READ_INVERT_SUPPORTED = 0;
    } else {
-      version = PNG_READ_INVERT_SUPPORTED;
+      enum PNG_READ_INVERT_SUPPORTED = 1;
    } // PNG_NO_READ_INVERT
    version (PNG_NO_READ_DITHER) {
+      enum PNG_READ_DITHER_SUPPORTED = 0;
    } else {
-      version = PNG_READ_DITHER_SUPPORTED;
+      enum PNG_READ_DITHER_SUPPORTED = 1;
    } // PNG_NO_READ_DITHER
    version (PNG_NO_READ_BACKGROUND) {
+      enum PNG_READ_BACKGROUND_SUPPORTED = 0;
    } else {
-      version = PNG_READ_BACKGROUND_SUPPORTED;
+      enum PNG_READ_BACKGROUND_SUPPORTED = 1;
    } // PNG_NO_READ_BACKGROUND
    version (PNG_NO_READ_16_TO_8) {
+      enum PNG_READ_16_TO_8_SUPPORTED = 0;
    } else {
-      version = PNG_READ_16_TO_8_SUPPORTED;
+      enum PNG_READ_16_TO_8_SUPPORTED = 1;
    } // PNG_NO_READ_16_TO_8
    version (PNG_NO_READ_FILLER) {
+      enum PNG_READ_FILLER_SUPPORTED = 0;
    } else {
-      version = PNG_READ_FILLER_SUPPORTED;
+      enum PNG_READ_FILLER_SUPPORTED = 1;
    } // PNG_NO_READ_FILLER
    version (PNG_NO_READ_GAMMA) {
+      enum PNG_READ_GAMMA_SUPPORTED = 0;
    } else {
-      version = PNG_READ_GAMMA_SUPPORTED;
+      enum PNG_READ_GAMMA_SUPPORTED = 1;
    } // PNG_NO_READ_GAMMA
    version (PNG_NO_READ_GRAY_TO_RGB) {
+      enum PNG_READ_GRAY_TO_RGB_SUPPORTED = 0;
    } else {
-      version = PNG_READ_GRAY_TO_RGB_SUPPORTED;
+      enum PNG_READ_GRAY_TO_RGB_SUPPORTED = 1;
    } // PNG_NO_READ_GRAY_TO_RGB
    version (PNG_NO_READ_SWAP_ALPHA) {
+      enum PNG_READ_SWAP_ALPHA_SUPPORTED = 0;
    } else {
-      version = PNG_READ_SWAP_ALPHA_SUPPORTED;
+      enum PNG_READ_SWAP_ALPHA_SUPPORTED = 1;
    } // PNG_NO_READ_SWAP_ALPHA
    version (PNG_NO_READ_INVERT_ALPHA) {
+      enum PNG_READ_INVERT_ALPHA_SUPPORTED = 0;
    } else {
-      version = PNG_READ_INVERT_ALPHA_SUPPORTED;
+      enum PNG_READ_INVERT_ALPHA_SUPPORTED = 1;
    } // PNG_NO_READ_INVERT_ALPHA
    version (PNG_NO_READ_STRIP_ALPHA) {
+      enum PNG_READ_STRIP_ALPHA_SUPPORTED = 0;
    } else {
-      version = PNG_READ_STRIP_ALPHA_SUPPORTED;
+      enum PNG_READ_STRIP_ALPHA_SUPPORTED = 1;
    } // PNG_NO_READ_STRIP_ALPHA
    version (PNG_NO_READ_USER_TRANSFORM) {
+      enum PNG_READ_USER_TRANSFORM_SUPPORTED = 0;
    } else {
-      version = PNG_READ_USER_TRANSFORM_SUPPORTED;
+      enum PNG_READ_USER_TRANSFORM_SUPPORTED = 1;
    } // PNG_NO_READ_USER_TRANSFORM
    version (PNG_NO_READ_RGB_TO_GRAY) {
+      enum PNG_READ_RGB_TO_GRAY_SUPPORTED = 0;
    } else {
-      version = PNG_READ_RGB_TO_GRAY_SUPPORTED;
+      enum PNG_READ_RGB_TO_GRAY_SUPPORTED = 1;
    } // PNG_NO_READ_RGB_TO_GRAY
 } // PNG_READ_TRANSFORMS_SUPPORTED
 
 /* PNG_PROGRESSIVE_READ_NOT_SUPPORTED is deprecated. */
 version (PNG_NO_PROGRESSIVE_READ) {
+   enum PNG_PROGRESSIVE_READ_NOT_SUPPORTED = 0;
 } else {
-   version = PNG_PROGRESSIVE_READ_NOT_SUPPORTED;
+   enum PNG_PROGRESSIVE_READ_NOT_SUPPORTED = 1;
 } // PNG_NO_PROGRESSIVE_READ
 
 /* if you don't do progressive reading.  This is not talking
  * about interlacing capability!  You'll still have interlacing unless you change the
  following define: */
-version = PNG_READ_INTERLACING_SUPPORTED; /* required for PNG-compliant decoders */
+enum PNG_READ_INTERLACING_SUPPORTED = 1; /* required for PNG-compliant decoders */
 
 /* PNG_NO_SEQUENTIAL_READ_SUPPORTED is deprecated. */
 version (PNG_NO_SEQUENTIAL_READ) {
+   enum PNG_SEQUENTIAL_READ_SUPPORTED = 0;
 } else {
-   version (PNG_NO_SEQUENTIAL_READ_SUPPORTED) {
-   } else {
-      version = PNG_SEQUENTIAL_READ_SUPPORTED;
-   } // PNG_NO_SEQUENTIAL_READ_SUPPORTED
+   enum PNG_SEQUENTIAL_READ_SUPPORTED = 1;
 } // PNG_NO_SEQUENTIAL_READ
 
 version (PNG_NO_READ_COMPOSITE_NODIV) {
+   enum PNG_READ_COMPOSITE_NODIV_SUPPORTED = 0;
 } else {
    version (PNG_NO_READ_COMPOSITED_NODIV) {
+      enum PNG_READ_COMPOSITE_NODIV_SUPPORTED = 0;
    } else {
-      version = PNG_READ_COMPOSITE_NODIV_SUPPORTED;  /* well tested on Intel, SGI */
-
+      enum PNG_READ_COMPOSITE_NODIV_SUPPORTED = 1;  /* well tested on Intel, SGI */
    } // PNG_NO_READ_COMPOSITED_NODIV
 } // PNG_NO_READ_COMPOSITE_NODIV
 
@@ -746,137 +775,174 @@ version (PNG_1_0_X) {
    /* Deprecated, will be removed from version 2.0.0.
       Use PNG_MNG_FEATURES_SUPPORTED instead. */
    version (PNG_NO_READ_EMPTY_PLTE) {
+      enum PNG_READ_EMPTY_PLTE_SUPPORTED = 0;
    } else {
-      version = PNG_READ_EMPTY_PLTE_SUPPORTED;
+      enum PNG_READ_EMPTY_PLTE_SUPPORTED = 1;
    } // PNG_NO_READ_EMPTY_PLTE
 } else version (PNG_1_2_X) {
    /* Deprecated, will be removed from version 2.0.0.
       Use PNG_MNG_FEATURES_SUPPORTED instead. */
    version (PNG_NO_READ_EMPTY_PLTE) {
+      enum PNG_READ_EMPTY_PLTE_SUPPORTED = 0;
    } else {
-      version = PNG_READ_EMPTY_PLTE_SUPPORTED;
+      enum PNG_READ_EMPTY_PLTE_SUPPORTED = 1;
    } // PNG_NO_READ_EMPTY_PLTE
+} else {
+   enum PNG_READ_EMPTY_PLTE_SUPPORTED = 0;
 } // PNG_1_2_X
 
 } // PNG_READ_SUPPORTED
 
-version (PNG_WRITE_SUPPORTED) {
+static if (PNG_WRITE_SUPPORTED) {
 
 version (PNG_WRITE_TRANSFORMS_NOT_SUPPORTED) {
+   enum PNG_WRITE_TRANSFORMS_SUPPORTED = 0;
 } else {
    version (PNG_NO_WRITE_TRANSFORMS) {
+      enum PNG_WRITE_TRANSFORMS_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_TRANSFORMS_SUPPORTED;
+      enum PNG_WRITE_TRANSFORMS_SUPPORTED = 1;
    } // PNG_NO_WRITE_TRANSFORMS
 } // PNG_WRITE_TRANSFORMS_NOT_SUPPORTED
 
-version (PNG_WRITE_TRANSFORMS_SUPPORTED) {
+static if (PNG_WRITE_TRANSFORMS_SUPPORTED) {
    version (PNG_NO_WRITE_SHIFT) {
+      enum PNG_WRITE_SHIFT_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_SHIFT_SUPPORTED;
+      enum PNG_WRITE_SHIFT_SUPPORTED = 1;
    } // PNG_NO_WRITE_SHIFT
    version (PNG_NO_WRITE_PACK) {
+      enum PNG_WRITE_PACK_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_PACK_SUPPORTED;
+      enum PNG_WRITE_PACK_SUPPORTED = 1;
    } // PNG_NO_WRITE_PACK
    version (PNG_NO_WRITE_BGR) {
+      enum PNG_WRITE_BGR_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_BGR_SUPPORTED;
+      enum PNG_WRITE_BGR_SUPPORTED = 1;
    } // PNG_NO_WRITE_BGR
    version (PNG_NO_WRITE_SWAP) {
+      enum PNG_WRITE_SWAP_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_SWAP_SUPPORTED;
+      enum PNG_WRITE_SWAP_SUPPORTED = 1;
    } // PNG_NO_WRITE_SWAP
    version (PNG_NO_WRITE_PACKSWAP) {
+      enum PNG_WRITE_PACKSWAP_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_PACKSWAP_SUPPORTED;
+      enum PNG_WRITE_PACKSWAP_SUPPORTED = 1;
    } // PNG_NO_WRITE_PACKSWAP
    version (PNG_NO_WRITE_INVERT) {
+      enum PNG_WRITE_INVERT_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_INVERT_SUPPORTED;
+      enum PNG_WRITE_INVERT_SUPPORTED = 1;
    } // PNG_NO_WRITE_INVERT
    version (PNG_NO_WRITE_FILLER) {
+      enum PNG_WRITE_FILLER_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_FILLER_SUPPORTED   /* same as WRITE_STRIP_ALPHA */;
+      enum PNG_WRITE_FILLER_SUPPORTED = 1;   /* same as WRITE_STRIP_ALPHA */;
    } // PNG_NO_WRITE_FILLER
    version (PNG_NO_WRITE_SWAP_ALPHA) {
+      enum PNG_WRITE_SWAP_ALPHA_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_SWAP_ALPHA_SUPPORTED;
+      enum PNG_WRITE_SWAP_ALPHA_SUPPORTED = 1;
    } // PNG_NO_WRITE_SWAP_ALPHA
+
    version (PNG_1_0_X) {
+      enum PNG_WRITE_INVERT_ALPHA_SUPPORTED = 0;
    } else {
       version (PNG_NO_WRITE_INVERT_ALPHA) {
+         enum PNG_WRITE_INVERT_ALPHA_SUPPORTED = 0;
       } else {
-         version = PNG_WRITE_INVERT_ALPHA_SUPPORTED;
+         enum PNG_WRITE_INVERT_ALPHA_SUPPORTED = 1;
       } // PNG_NO_WRITE_INVERT_ALPHA
    } // PNG_1_0_X
+
    version (PNG_NO_WRITE_USER_TRANSFORM) {
+      enum PNG_WRITE_USER_TRANSFORM_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_USER_TRANSFORM_SUPPORTED;
+      enum PNG_WRITE_USER_TRANSFORM_SUPPORTED = 1;
    } // PNG_NO_WRITE_USER_TRANSFORM
 } // PNG_WRITE_TRANSFORMS_SUPPORTED
 
 version (PNG_NO_WRITE_INTERLACING_SUPPORTED) {
+   enum PNG_WRITE_INTERLACING_SUPPORTED = 0;
 } else {
    /* Not required for PNG-compliant encoders, but can cause trouble
     * if left undefined
     */
-   version = PNG_WRITE_INTERLACING_SUPPORTED;
+   enum PNG_WRITE_INTERLACING_SUPPORTED = 1;
 } // PNG_NO_WRITE_INTERLACING_SUPPORTED
 
 version (PNG_NO_WRITE_WEIGHTED_FILTER) {
+   enum PNG_WRITE_WEIGHTED_FILTER_SUPPORTED = 0;
 } else {
    version (PNG_WRITE_WEIGHTED_FILTER) {
+      enum PNG_WRITE_WEIGHTED_FILTER_SUPPORTED = 0;
    } else {
-      version (PNG_FLOATING_POINT_SUPPORTED) {
-         version = PNG_WRITE_WEIGHTED_FILTER_SUPPORTED;
-     } // PNG_FLOATING_POINT_SUPPORTED
+      static if (PNG_FLOATING_POINT_SUPPORTED) {
+         enum PNG_WRITE_WEIGHTED_FILTER_SUPPORTED = 1;
+      } else {
+         enum PNG_WRITE_WEIGHTED_FILTER_SUPPORTED = 0;
+      } // PNG_FLOATING_POINT_SUPPORTED
    } // PNG_WRITE_WEIGHTED_FILTER
 } // PNG_NO_WRITE_WEIGHTED_FILTER 
 
 version (PNG_NO_WRITE_FLUSH) {
-   version = PNG_WRITE_FLUSH_SUPPORTED;
+   enum PNG_WRITE_FLUSH_SUPPORTED = 1;
+} else {
+   enum PNG_WRITE_FLUSH_SUPPORTED = 0;
 } // PNG_NO_WRITE_FLUSH
 
 version (PNG_1_0_X) {
    /* Deprecated, see PNG_MNG_FEATURES_SUPPORTED, above */
    version (PNG_NO_WRITE_EMPTY_PLTE) {
+      enum PNG_WRITE_EMPTY_PLTE_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_EMPTY_PLTE_SUPPORTED;
+      enum PNG_WRITE_EMPTY_PLTE_SUPPORTED = 1;
    }
 } else version (PNG_1_2_X) {
    /* Deprecated, see PNG_MNG_FEATURES_SUPPORTED, above */
    version (PNG_NO_WRITE_EMPTY_PLTE) {
+      enum PNG_WRITE_EMPTY_PLTE_SUPPORTED = 0;
    } else {
-      version = PNG_WRITE_EMPTY_PLTE_SUPPORTED;
+      enum PNG_WRITE_EMPTY_PLTE_SUPPORTED = 1;
    }
+} else {
+   enum PNG_WRITE_EMPTY_PLTE_SUPPORTED = 0;
 } // PNG_1_2_X
 
 } // PNG_WRITE_SUPPORTED */
 
 version (PNG_1_0_X) {
+   enum PNG_ERROR_NUMBERS_SUPPORTED = 0;
 } else {
    version (PNG_NO_ERROR_NUMBERS) {
+      enum PNG_ERROR_NUMBERS_SUPPORTED = 0;
    } else {
-      version = PNG_ERROR_NUMBERS_SUPPORTED;
+      enum PNG_ERROR_NUMBERS_SUPPORTED = 1;
    } // PNG_NO_ERROR_NUMBERS
 } // PNG_1_0_X
 
-version (PNG_READ_USER_TRANSFORM_SUPPORTED) {
+static if (PNG_READ_USER_TRANSFORM_SUPPORTED) {
    version (PNG_NO_USER_TRANSFORM_PTR) {
+      enum PNG_USER_TRANSFORM_PTR_SUPPORTED = 0;
    } else {
-      version = PNG_USER_TRANSFORM_PTR_SUPPORTED;
+      enum PNG_USER_TRANSFORM_PTR_SUPPORTED = 1;
    } // PNG_NO_USER_TRANSFORM_PTR
-} else version (PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
+} else static if (PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
    version (PNG_NO_USER_TRANSFORM_PTR) {
+      enum PNG_USER_TRANSFORM_PTR_SUPPORTED = 0;
    } else {
-      version = PNG_USER_TRANSFORM_PTR_SUPPORTED;
+      enum PNG_USER_TRANSFORM_PTR_SUPPORTED = 1;
    } // PNG_NO_USER_TRANSFORM_PTR
+} else {
+      enum PNG_USER_TRANSFORM_PTR_SUPPORTED = 0;
 } // PNG_WRITE_USER_TRANSFORM_SUPPORTED
 
 version (PNG_NO_STDIO) {
+   enum PNG_TIME_RFC1123_SUPPORTED = 0;
 } else {
-   version = PNG_TIME_RFC1123_SUPPORTED;
+   enum PNG_TIME_RFC1123_SUPPORTED = 1;
 }
 
 /* This adds extra functions in pngget.c for accessing data from the
@@ -896,8 +962,9 @@ version (PNG_NO_STDIO) {
  * png_get_y_offset_microns()
  */
 version (PNG_NO_EASY_ACCESS) {
+   enum PNG_EASY_ACCESS_SUPPORTED = 0;
 } else {
-   version = PNG_EASY_ACCESS_SUPPORTED;
+   enum PNG_EASY_ACCESS_SUPPORTED = 1;
 } // PNG_NO_EASY_ACCESS
 
 /* PNG_ASSEMBLER_CODE was enabled by default in version 1.2.0
@@ -905,23 +972,27 @@ version (PNG_NO_EASY_ACCESS) {
  * from libpng-1.4.0
 */
 
-version (PNG_READ_SUPPORTED) {
+static if (PNG_READ_SUPPORTED) {
    version (PNG_NO_OPTIMIZED_CODE) {
+      enum PNG_OPTIMIZED_CODE_SUPPORTED = 0;
    } else {
-      version = PNG_OPTIMIZED_CODE_SUPPORTED;
+      enum PNG_OPTIMIZED_CODE_SUPPORTED = 1;
    } // PNG_NO_OPTIMIZED_CODE
 
    version (PNG_NO_ASSEMBLER_CODE) {
+      enum PNG_ASSEMBLER_CODE_SUPPORTED = 0;
    } else {
-      version = PNG_ASSEMBLER_CODE_SUPPORTED;
+      enum PNG_ASSEMBLER_CODE_SUPPORTED = 1;
    } // PNG_NO_ASSEMBLER_CODE
+} else {
+   enum PNG_ASSEMBLER_CODE_SUPPORTED = 0;
+   enum PNG_OPTIMIZED_CODE_SUPPORTED = 0;
 } // PNG_READ_SUPPORTED
 
-version (PNG_READ_SUPPORTED) {
+static if (PNG_READ_SUPPORTED) {
    version (PNG_NO_ASSEMBLER_CODE) {
+      enum PNG_MMX_CODE_SUPPORTED = 0;
    } else {
-      version = PNG_ASSEMBLER_CODE_SUPPORTED;
-
 // #  if defined(__GNUC__) && defined(__x86_64__) && (__GNUC__ < 4)
 //      /* work around 64-bit gcc compiler bugs in gcc-3.x */
 // #    if !defined(PNG_MMX_CODE_SUPPORTED) && !defined(PNG_NO_MMX_CODE)
@@ -942,34 +1013,43 @@ version (PNG_READ_SUPPORTED) {
 // #  endif
 
       version (PNG_NO_MMX_CODE) {
+         enum PNG_MMX_CODE_SUPPORTED = 0;
       } else {
-         version = PNG_MMX_CODE_SUPPORTED;
+         enum PNG_MMX_CODE_SUPPORTED = 1;
       } // PNG_NO_MMX_CODE
    } // PNG_NO_ASSEMBLER_CODE
+} else {
+   enum PNG_MMX_CODE_SUPPORTED = 0;
 } // PNG_READ_SUPPORTED
 /* end of obsolete code to be removed from libpng-1.4.0 */
 
 /* Added at libpng-1.2.0 */
 version (PNG_1_0_X) {
+   enum PNG_USER_MEM_SUPPORTED = 0;
 } else {
    version (PNG_NO_USER_MEM) {
+      enum PNG_USER_MEM_SUPPORTED = 0;
    } else {
-      version = PNG_USER_MEM_SUPPORTED;
+      enum PNG_USER_MEM_SUPPORTED = 1;
    } // (PNG_NO_USER_MEM)
 } // PNG_1_0_X
 
 /* Added at libpng-1.2.6 */
 version (PNG_1_0_X) {
+   enum PNG_SET_USER_LIMITS_SUPPORTED = 0;
 } else {
    version (PNG_NO_SET_USER_LIMITS) {
+      enum PNG_SET_USER_LIMITS_SUPPORTED = 0;
    } else {
-      version = PNG_SET_USER_LIMITS_SUPPORTED;
+      enum PNG_SET_USER_LIMITS_SUPPORTED = 1;
    } // PNG_NO_SET_USER_LIMITS
 } // PNG_1_0_X
 
 /* Added at libpng-1.0.53 and 1.2.43 */
 version (PNG_NO_USER_LIMITS) {
-   version = PNG_USER_LIMITS_SUPPORTED;
+   enum PNG_USER_LIMITS_SUPPORTED = 1;
+} else {
+   enum PNG_USER_LIMITS_SUPPORTED = 0;
 } // PNG_NO_USER_LIMITS
 
 /* Added at libpng-1.0.16 and 1.2.6.  To accept all valid PNGS no matter
@@ -1018,8 +1098,9 @@ enum PNG_STRING_NEWLINE = "\n";
 */
 
 version (PNG_NO_POINTER_INDEXING) {
+   enum PNG_POINTER_INDEXING_SUPPORTED = 0;
 } else {
-   version = PNG_POINTER_INDEXING_SUPPORTED;
+   enum PNG_POINTER_INDEXING_SUPPORTED = 1;
 } // PNG_NO_POINTER_INDEXING
 
 /* These functions are turned off by default, as they will be phased out. */
@@ -1034,27 +1115,35 @@ version (PNG_NO_POINTER_INDEXING) {
  * a bit smaller.
  */
 
-version (PNG_READ_SUPPORTED) {
+static if (PNG_READ_SUPPORTED) {
    version (PNG_READ_ANCILLARY_CHUNKS_NOT_SUPPORTED) {
+      enum PNG_READ_ANCILLARY_CHUNKS_SUPPORTED = 0;
    } else {
       version (PNG_NO_READ_ANCILLARY_CHUNKS) {
+         enum PNG_READ_ANCILLARY_CHUNKS_SUPPORTED = 0;
       } else {
-         version = PNG_READ_ANCILLARY_CHUNKS_SUPPORTED;
+         enum PNG_READ_ANCILLARY_CHUNKS_SUPPORTED = 1;
       } // PNG_NO_READ_ANCILLARY_CHUNKS
    } // PNG_READ_ANCILLARY_CHUNKS_NOT_SUPPORTED
+} else {
+   enum PNG_READ_ANCILLARY_CHUNKS_SUPPORTED = 0;
 } // PNG_READ_SUPPORTED
 
-version (PNG_WRITE_SUPPORTED) {
+static if (PNG_WRITE_SUPPORTED) {
    version (PNG_WRITE_ANCILLARY_CHUNKS_NOT_SUPPORTED) {
+      enum PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED = 0;
    } else {
       version (PNG_NO_WRITE_ANCILLARY_CHUNKS) {
+         enum PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED = 0;
       } else {
-         version = PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED;
+         enum PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED = 1;
       } // PNG_NO_WRITE_ANCILLARY_CHUNKS
    } // PNG_WRITE_ANCILLARY_CHUNKS_NOT_SUPPORTED
+} else {
+   enum PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED = 0;
 } // PNG_WRITE_SUPPORTED
 
-version (PNG_READ_ANCILLARY_CHUNKS_SUPPORTED) {
+static if (PNG_READ_ANCILLARY_CHUNKS_SUPPORTED) {
 
 version (PNG_NO_READ_TEXT) {
    version = PNG_NO_READ_iTXt;
@@ -1062,134 +1151,139 @@ version (PNG_NO_READ_TEXT) {
    version = PNG_NO_READ_zTXt;
 } // PNG_NO_READ_TEXT
 version (PNG_NO_READ_bKGD) {
+   enum PNG_READ_bKGD_SUPPORTED = 0;
 } else {
-   version = PNG_READ_bKGD_SUPPORTED;
-   version = PNG_bKGD_SUPPORTED;
+   enum PNG_READ_bKGD_SUPPORTED = 1;
 } // PNG_NO_READ_bKGD
 version (PNG_NO_READ_cHRM) {
+   enum PNG_READ_cHRM_SUPPORTED = 0;
 } else {
-   version = PNG_READ_cHRM_SUPPORTED;
-   version = PNG_cHRM_SUPPORTED;
+   enum PNG_READ_cHRM_SUPPORTED = 1;
 } // PNG_NO_READ_cHRM
 version (PNG_NO_READ_gAMA) {
+   enum PNG_READ_gAMA_SUPPORTED = 0;
 } else {
-   version = PNG_READ_gAMA_SUPPORTED;
-   version = PNG_gAMA_SUPPORTED;
+   enum PNG_READ_gAMA_SUPPORTED = 1;
 } // PNG_NO_READ_gAMA
 version (PNG_NO_READ_hIST) {
-   version = PNG_READ_hIST_SUPPORTED;
-   version = PNG_hIST_SUPPORTED;
+   enum PNG_READ_hIST_SUPPORTED = 0;
+} else {
+   enum PNG_READ_hIST_SUPPORTED = 1;
 } // PNG_NO_READ_hIST
 version (PNG_NO_READ_iCCP) {
+   enum PNG_READ_iCCP_SUPPORTED = 0;
 } else {
-   version = PNG_READ_iCCP_SUPPORTED;
-   version = PNG_iCCP_SUPPORTED;
+   enum PNG_READ_iCCP_SUPPORTED = 1;
 } // PNG_NO_READ_iCCP
 version (PNG_NO_READ_iTXt) {
+   enum PNG_READ_iTXt_SUPPORTED = 0;
 } else {
-   version = PNG_READ_iTXt_SUPPORTED;
-   version = PNG_iTXt_SUPPORTED;
+   enum PNG_READ_iTXt_SUPPORTED = 1;
 } // PNG_NO_READ_iTXt
 version (PNG_NO_READ_oFFs) {
+   enum PNG_READ_oFFs_SUPPORTED = 0;
 } else {
-   version = PNG_READ_oFFs_SUPPORTED;
-   version = PNG_oFFs_SUPPORTED;
+   enum PNG_READ_oFFs_SUPPORTED = 1;
 } // PNG_NO_READ_oFFs
 version (PNG_NO_READ_pCAL) {
+   enum PNG_READ_pCAL_SUPPORTED = 0;
 } else {
-   version = PNG_READ_pCAL_SUPPORTED;
-   version = PNG_pCAL_SUPPORTED;
+   enum PNG_READ_pCAL_SUPPORTED = 1;
 } // PNG_NO_READ_pCAL
 version (PNG_NO_READ_sCAL) {
+   enum PNG_READ_sCAL_SUPPORTED = 0;
 } else {
-   version = PNG_READ_sCAL_SUPPORTED;
-   version = PNG_sCAL_SUPPORTED;
+   enum PNG_READ_sCAL_SUPPORTED = 1;
 } // PNG_NO_READ_sCAL
 version (PNG_NO_READ_pHYs) {
+   enum PNG_READ_pHYs_SUPPORTED = 0;
 } else {
-   version = PNG_READ_pHYs_SUPPORTED;
-   version = PNG_pHYs_SUPPORTED;
+   enum PNG_READ_pHYs_SUPPORTED = 1;
 } // PNG_NO_READ_pHYs
 version (PNG_NO_READ_sBIT) {
+   enum PNG_READ_sBIT_SUPPORTED = 0;
 } else {
-   version = PNG_READ_sBIT_SUPPORTED;
-   version = PNG_sBIT_SUPPORTED;
+   enum PNG_READ_sBIT_SUPPORTED = 1;
 } // PNG_NO_READ_sBIT
 version (PNG_NO_READ_sPLT) {
+   enum PNG_READ_sPLT_SUPPORTED = 0;
 } else {
-   version = PNG_READ_sPLT_SUPPORTED;
-   version = PNG_sPLT_SUPPORTED;
+   enum PNG_READ_sPLT_SUPPORTED = 1;
 } // PNG_NO_READ_sPLT
 version (PNG_NO_READ_sRGB) {
+   enum PNG_READ_sRGB_SUPPORTED = 0;
 } else {
-   version = PNG_READ_sRGB_SUPPORTED;
-   version = PNG_sRGB_SUPPORTED;
+   enum PNG_READ_sRGB_SUPPORTED = 1;
 } // PNG_NO_READ_sRGB
 version (PNG_NO_READ_tEXt) {
+   enum PNG_READ_tEXt_SUPPORTED = 0;
 } else {
-   version = PNG_READ_tEXt_SUPPORTED;
-   version = PNG_tEXt_SUPPORTED;
+   enum PNG_READ_tEXt_SUPPORTED = 1;
 } // PNG_NO_READ_tEXt
 version (PNG_NO_READ_tIME) {
+   enum PNG_READ_tIME_SUPPORTED = 0;
 } else {
-   version = PNG_READ_tIME_SUPPORTED;
-   version = PNG_tIME_SUPPORTED;
+   enum PNG_READ_tIME_SUPPORTED = 1;
 } // PNG_NO_READ_tIME
 version (PNG_NO_READ_tRNS) {
+   enum PNG_READ_tRNS_SUPPORTED = 0;
 } else {
-   version = PNG_READ_tRNS_SUPPORTED;
-   version = PNG_tRNS_SUPPORTED;
+   enum PNG_READ_tRNS_SUPPORTED = 1;
 } // PNG_NO_READ_tRNS
 version (PNG_NO_READ_zTXt) {
+   enum PNG_READ_zTXt_SUPPORTED = 0;
 } else {
-   version = PNG_READ_zTXt_SUPPORTED;
-   version = PNG_zTXt_SUPPORTED;
+   enum PNG_READ_zTXt_SUPPORTED = 1;
 } // PNG_NO_READ_zTXt
 version (PNG_NO_READ_OPT_PLTE) {
+   enum PNG_READ_OPT_PLTE_SUPPORTED = 0; 
 } else {
    /* only affects support of the optional PLTE chunk in RGB and RGBA images */
-   version = PNG_READ_OPT_PLTE_SUPPORTED; 
-}
-version (PNG_READ_iTXt_SUPPORTED) {
-   version = PNG_READ_TEXT_SUPPORTED;
-   version = PNG_TEXT_SUPPORTED;
-} else version (PNG_READ_tEXt_SUPPORTED) {
-   version = PNG_READ_TEXT_SUPPORTED;
-   version = PNG_TEXT_SUPPORTED;
-} else version (PNG_READ_zTXt_SUPPORTED) {
-   version = PNG_READ_TEXT_SUPPORTED;
-   version = PNG_TEXT_SUPPORTED;
-}
+   enum PNG_READ_OPT_PLTE_SUPPORTED = 1; 
+} // PNG_NO_READ_OPT_PLTE
+
+static if (PNG_READ_iTXt_SUPPORTED ||
+      PNG_READ_tEXt_SUPPORTED ||
+      PNG_READ_zTXt_SUPPORTED) {
+   enum PNG_READ_TEXT_SUPPORTED = 1;
+} else {
+   enum PNG_READ_TEXT_SUPPORTED = 0;
+} // PNG_READ_iTXt_SUPPORTED || PNG_READ_tEXt_SUPPORTED || PNG_READ_zTXt_SUPPORTED
 
 } // PNG_READ_ANCILLARY_CHUNKS_SUPPORTED
 
 version (PNG_NO_READ_UNKNOWN_CHUNKS) {
+   enum PNG_READ_UNKNOWN_CHUNKS_SUPPORTED = 0;
 } else {
-   version = PNG_READ_UNKNOWN_CHUNKS_SUPPORTED;
-   version = PNG_UNKNOWN_CHUNKS_SUPPORTED;
+   enum PNG_READ_UNKNOWN_CHUNKS_SUPPORTED = 1;
 } // PNG_NO_READ_UNKNOWN_CHUNKS
 
 version (PNG_NO_READ_USER_CHUNKS) {
+   enum PNG_READ_USER_CHUNKS_SUPPORTED = 0;
+   enum PNG_USER_CHUNKS_SUPPORTED = 0;
 } else {
-   version (PNG_READ_UNKNOWN_CHUNKS_SUPPORTED) {
-      version = PNG_READ_USER_CHUNKS_SUPPORTED;
-      version = PNG_USER_CHUNKS_SUPPORTED;
+   static if (PNG_READ_UNKNOWN_CHUNKS_SUPPORTED) {
+      enum PNG_READ_USER_CHUNKS_SUPPORTED = 1;
+      enum PNG_USER_CHUNKS_SUPPORTED = 1;
 // #  ifdef PNG_NO_READ_UNKNOWN_CHUNKS
 // #    undef PNG_NO_READ_UNKNOWN_CHUNKS
 // #  endif
 // #  ifdef PNG_NO_HANDLE_AS_UNKNOWN
 // #    undef PNG_NO_HANDLE_AS_UNKNOWN
 // #  endif
+   } else {
+      enum PNG_READ_USER_CHUNKS_SUPPORTED = 0;
+      enum PNG_USER_CHUNKS_SUPPORTED = 0;
    } // PNG_READ_UNKNOWN_CHUNKS_SUPPORTED
 } // PNG_NO_READ_USER_CHUNKS
 
 version (PNG_NO_HANDLE_AS_UNKNOWN) {
+   enum PNG_HANDLE_AS_UNKNOWN_SUPPORTED = 0;
 } else {
-   version = PNG_HANDLE_AS_UNKNOWN_SUPPORTED;
+   enum PNG_HANDLE_AS_UNKNOWN_SUPPORTED = 1;
 } // PNG_NO_HANDLE_AS_UNKNOWN
 
-version (PNG_WRITE_SUPPORTED) {
-version (PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED) {
+static if (PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED) {
 
 version (PNG_NO_WRITE_TEXT) {
    version = PNG_NO_WRITE_iTXt;
@@ -1197,145 +1291,356 @@ version (PNG_NO_WRITE_TEXT) {
    version = PNG_NO_WRITE_zTXt;
 } // PNG_NO_WRITE_TEXT
 version (PNG_NO_WRITE_bKGD) {
+   enum PNG_WRITE_bKGD_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_bKGD_SUPPORTED;
-   version = PNG_bKGD_SUPPORTED;
+   enum PNG_WRITE_bKGD_SUPPORTED = 1;
 } // PNG_NO_WRITE_bKGD
 version (PNG_NO_WRITE_cHRM) {
+   enum PNG_WRITE_cHRM_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_cHRM_SUPPORTED;
-   version = PNG_cHRM_SUPPORTED;
+   enum PNG_WRITE_cHRM_SUPPORTED = 1;
 } // PNG_NO_WRITE_cHRM
 version (PNG_NO_WRITE_gAMA) {
+   enum PNG_WRITE_gAMA_SUPPORTED = 0;
 } else {
-   version =  PNG_WRITE_gAMA_SUPPORTED;
-   version = PNG_gAMA_SUPPORTED;
+   enum PNG_WRITE_gAMA_SUPPORTED = 1;
 } // PNG_NO_WRITE_gAMA
 version (PNG_NO_WRITE_hIST) {
+   enum PNG_WRITE_hIST_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_hIST_SUPPORTED;
-   version = PNG_hIST_SUPPORTED;
+   enum PNG_WRITE_hIST_SUPPORTED = 1;
 } // PNG_NO_WRITE_hIST
 version (PNG_NO_WRITE_iCCP) {
+   enum PNG_WRITE_iCCP_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_iCCP_SUPPORTED;
-   version = PNG_iCCP_SUPPORTED;
+   enum PNG_WRITE_iCCP_SUPPORTED = 1;
 } // PNG_NO_WRITE_iCCP
 version (PNG_NO_WRITE_iTXt) {
+   enum PNG_WRITE_iTXt_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_iTXt_SUPPORTED;
-   version = PNG_iTXt_SUPPORTED;
+   enum PNG_WRITE_iTXt_SUPPORTED = 1;
 } // PNG_NO_WRITE_iTXt
 version (PNG_NO_WRITE_oFFs) {
+   enum PNG_WRITE_oFFs_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_oFFs_SUPPORTED;
-   version = PNG_oFFs_SUPPORTED;
+   enum PNG_WRITE_oFFs_SUPPORTED = 1;
 } // PNG_NO_WRITE_oFFs
 version (PNG_NO_WRITE_pCAL) {
+   enum PNG_WRITE_pCAL_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_pCAL_SUPPORTED;
-   version = PNG_pCAL_SUPPORTED;
+   enum PNG_WRITE_pCAL_SUPPORTED = 1;
 } // PNG_NO_WRITE_pCAL
 version (PNG_NO_WRITE_sCAL) {
+   enum PNG_WRITE_sCAL_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_sCAL_SUPPORTED;
-   version = PNG_sCAL_SUPPORTED;
+   enum PNG_WRITE_sCAL_SUPPORTED = 1;
 } // PNG_NO_WRITE_sCAL
 version (PNG_NO_WRITE_pHYs) {
+   enum PNG_WRITE_pHYs_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_pHYs_SUPPORTED;
-   version = PNG_pHYs_SUPPORTED;
+   enum PNG_WRITE_pHYs_SUPPORTED = 1;
 } // PNG_NO_WRITE_pHYs
 version (PNG_NO_WRITE_sBIT) {
+   enum PNG_WRITE_sBIT_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_sBIT_SUPPORTED;
-   version = PNG_sBIT_SUPPORTED;
+   enum PNG_WRITE_sBIT_SUPPORTED = 1;
 } // PNG_NO_WRITE_sBIT
 version (PNG_NO_WRITE_sPLT) {
+   enum PNG_WRITE_sPLT_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_sPLT_SUPPORTED;
-   version = PNG_sPLT_SUPPORTED;
+   enum PNG_WRITE_sPLT_SUPPORTED = 1;
 } // PNG_NO_WRITE_sPLT
 version (PNG_NO_WRITE_sRGB) {
+   enum PNG_WRITE_sRGB_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_sRGB_SUPPORTED;
-   version = PNG_sRGB_SUPPORTED;
+   enum PNG_WRITE_sRGB_SUPPORTED = 1;
 } // PNG_NO_WRITE_sRGB
 version (PNG_NO_WRITE_tEXt) {
+   enum PNG_WRITE_tEXt_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_tEXt_SUPPORTED;
-   version = PNG_tEXt_SUPPORTED;
+   enum PNG_WRITE_tEXt_SUPPORTED = 1;
 } // PNG_NO_WRITE_tEXt
 version (PNG_NO_WRITE_tIME) {
+   enum PNG_WRITE_tIME_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_tIME_SUPPORTED;
-   version = PNG_tIME_SUPPORTED;
+   enum PNG_WRITE_tIME_SUPPORTED = 1;
 } // PNG_NO_WRITE_tIME
 version (PNG_NO_WRITE_tRNS) {
+   enum PNG_WRITE_tRNS_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_tRNS_SUPPORTED;
-   version = PNG_tRNS_SUPPORTED;
+   enum PNG_WRITE_tRNS_SUPPORTED = 1;
 } // PNG_NO_WRITE_tRNS
 version (PNG_NO_WRITE_zTXt) {
+   enum PNG_WRITE_zTXt_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_zTXt_SUPPORTED;
-   version = PNG_zTXt_SUPPORTED;
+   enum PNG_WRITE_zTXt_SUPPORTED = 1;
 } // PNG_NO_WRITE_zTXt
-version (PNG_WRITE_iTXt_SUPPORTED) {
-   version = PNG_WRITE_TEXT_SUPPORTED;
-   version = PNG_TEXT_SUPPORTED;
-} else version (PNG_WRITE_tEXt_SUPPORTED) {
-   version = PNG_WRITE_TEXT_SUPPORTED;
-   version = PNG_TEXT_SUPPORTED;
-} else version (PNG_WRITE_zTXt_SUPPORTED) {
-   version = PNG_WRITE_TEXT_SUPPORTED;
-   version = PNG_TEXT_SUPPORTED;
-} // PNG_WRITE_zTXt_SUPPORTED
 
-version (PNG_WRITE_tIME_SUPPORTED) {
+static if (PNG_WRITE_iTXt_SUPPORTED ||
+      PNG_WRITE_tEXt_SUPPORTED ||
+      PNG_WRITE_zTXt_SUPPORTED) {
+   enum PNG_WRITE_TEXT_SUPPORTED = 1;
+} else {
+   enum PNG_WRITE_TEXT_SUPPORTED = 0;
+} // PNG_WRITE_iTXt_SUPPORTED || PNG_WRITE_tEXt_SUPPORTED || PNG_WRITE_zTXt_SUPPORTED
+
+static if (PNG_WRITE_tIME_SUPPORTED) {
    version (PNG_NO_CONVERT_tIME) {
+      enum PNG_CONVERT_tIME_SUPPORTED = 0;
    } else {
       version (_WIN32_WCE) {
+         enum PNG_CONVERT_tIME_SUPPORTED = 0;
       } else {
          /*   The "tm" structure is not supported on WindowsCE */
-         version = PNG_CONVERT_tIME_SUPPORTED;
+         enum PNG_CONVERT_tIME_SUPPORTED = 1;
       } // _WIN32_WCE
    } // PNG_NO_CONVERT_tIME
+} else {
+   enum PNG_CONVERT_tIME_SUPPORTED = 0;
 } // PNG_WRITE_tIME_SUPPORTED
 
 } // PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED
 
-version (PNG_NO_WRITE_FILTER) {
+static if (PNG_WRITE_ANCILLARY_CHUNKS_SUPPORTED || PNG_READ_ANCILLARY_CHUNKS_SUPPORTED) {
+   version (PNG_NO_WRITE_bKGD) {
+      version (PNG_NO_READ_bKGD) {
+         enum PNG_bKGD_SUPPORTED = 0;
+      } else {
+         enum PNG_bKGD_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_bKGD_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_cHRM) {
+      version (PNG_NO_READ_cHRM) {
+         enum PNG_cHRM_SUPPORTED = 0;
+      } else {
+         enum PNG_cHRM_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_cHRM_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_gAMA) {
+      version (PNG_NO_READ_gAMA) {
+         enum PNG_gAMA_SUPPORTED = 0;
+      } else {
+         enum PNG_gAMA_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_gAMA_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_hIST) {
+      version (PNG_NO_READ_hIST) {
+         enum PNG_hIST_SUPPORTED = 0;
+      } else {
+         enum PNG_hIST_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_hIST_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_iCCP) {
+      version (PNG_NO_READ_iCCP) {
+         enum PNG_iCCP_SUPPORTED = 0;
+      } else {
+         enum PNG_iCCP_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_iCCP_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_iTXt) {
+      version (PNG_NO_READ_iTXt) {
+         enum PNG_iTXt_SUPPORTED = 0;
+      } else {
+         enum PNG_iTXt_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_iTXt_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_oFFs) {
+      version (PNG_NO_READ_oFFs) {
+         enum PNG_oFFs_SUPPORTED = 0;
+      } else {
+         enum PNG_oFFs_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_oFFs_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_pCAL) {
+      version (PNG_NO_READ_pCAL) {
+         enum PNG_pCAL_SUPPORTED = 0;
+      } else {
+         enum PNG_pCAL_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_pCAL_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_sCAL) {
+      version (PNG_NO_READ_sCAL) {
+         enum PNG_sCAL_SUPPORTED = 0;
+      } else {
+         enum PNG_sCAL_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_sCAL_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_pHYs) {
+      version (PNG_NO_READ_pHYs) {
+         enum PNG_pHYs_SUPPORTED = 0;
+      } else {
+         enum PNG_pHYs_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_pHYs_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_sBIT) {
+      version (PNG_NO_READ_sBIT) {
+         enum PNG_sBIT_SUPPORTED = 0;
+      } else {
+         enum PNG_sBIT_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_sBIT_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_sPLT) {
+      version (PNG_NO_READ_sPLT) {
+         enum PNG_sPLT_SUPPORTED = 0;
+      } else {
+         enum PNG_sPLT_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_sPLT_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_sRGB) {
+      version (PNG_NO_READ_sRGB) {
+         enum PNG_sRGB_SUPPORTED = 0;
+      } else {
+         enum PNG_sRGB_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_sRGB_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_tEXt) {
+      version (PNG_NO_READ_tEXt) {
+         enum PNG_tEXt_SUPPORTED = 0;
+      } else {
+         enum PNG_tEXt_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_tEXt_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_tIME) {
+      version (PNG_NO_READ_tIME) {
+         enum PNG_tIME_SUPPORTED = 0;
+      } else {
+         enum PNG_tIME_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_tIME_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_tRNS) {
+      version (PNG_NO_READ_tRNS) {
+         enum PNG_tRNS_SUPPORTED = 0;
+      } else {
+         enum PNG_tRNS_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_tRNS_SUPPORTED = 1;
+   }
+
+   version (PNG_NO_WRITE_zTXt) {
+      version (PNG_NO_READ_zTXt) {
+         enum PNG_zTXt_SUPPORTED = 0;
+      } else {
+         enum PNG_zTXt_SUPPORTED = 1;
+      }
+   } else {
+      enum PNG_zTXt_SUPPORTED = 1;
+   }
+
+   static if (PNG_WRITE_iTXt_SUPPORTED ||
+         PNG_WRITE_tEXt_SUPPORTED ||
+         PNG_WRITE_zTXt_SUPPORTED ||
+         PNG_READ_iTXt_SUPPORTED ||
+         PNG_READ_tEXt_SUPPORTED ||
+         PNG_READ_zTXt_SUPPORTED) {
+      enum PNG_TEXT_SUPPORTED = 1;
+   } else {
+      enum PNG_TEXT_SUPPORTED = 0;
+   }
+
 } else {
-   version = PNG_WRITE_FILTER_SUPPORTED;
-} // PNG_NO_WRITE_FILTER
+   enum PNG_bKGD_SUPPORTED = 0;
+   enum PNG_cHRM_SUPPORTED = 0;
+   enum PNG_gAMA_SUPPORTED = 0;
+   enum PNG_hIST_SUPPORTED = 0;
+   enum PNG_iCCP_SUPPORTED = 0;
+   enum PNG_iTXt_SUPPORTED = 0;
+   enum PNG_oFFs_SUPPORTED = 0;
+   enum PNG_pCAL_SUPPORTED = 0;
+   enum PNG_sCAL_SUPPORTED = 0;
+   enum PNG_pHYs_SUPPORTED = 0;
+   enum PNG_sBIT_SUPPORTED = 0;
+   enum PNG_sPLT_SUPPORTED = 0;
+   enum PNG_sRGB_SUPPORTED = 0;
+   enum PNG_tEXt_SUPPORTED = 0;
+   enum PNG_tIME_SUPPORTED = 0;
+   enum PNG_tRNS_SUPPORTED = 0;
+   enum PNG_zTXt_SUPPORTED = 0;
+   enum PNG_TEXT_SUPPORTED = 0;
+}
 
 version (PNG_NO_WRITE_UNKNOWN_CHUNKS) {
+   enum PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED = 0;
 } else {
-   version = PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED;
-   version = PNG_UNKNOWN_CHUNKS_SUPPORTED;
+   enum PNG_WRITE_UNKNOWN_CHUNKS_SUPPORTED = 1;
 } // PNG_NO_WRITE_UNKNOWN_CHUNKS
 
-version (PNG_NO_HANDLE_AS_UNKNOWN) {
+version (PNG_NO_WRITE_UNKNOWN_CHUNKS) {
+   version (PNG_NO_READ_UNKNOWN_CHUNKS) {
+      enum PNG_UNKNOWN_CHUNKS_SUPPORTED = 0;
+   } else {
+      enum PNG_UNKNOWN_CHUNKS_SUPPORTED = 1;
+   } // PNG_NO_READ_UNKNOWN_CHUNKS
 } else {
-   version = PNG_HANDLE_AS_UNKNOWN_SUPPORTED;
-} // PNG_NO_HANDLE_AS_UNKNOWN
+   enum PNG_UNKNOWN_CHUNKS_SUPPORTED = 1;
+} // PNG_NO_WRITE_UNKNOWN_CHUNKS
 
-} // PNG_WRITE_SUPPORTED
+version (PNG_NO_WRITE_FILTER) {
+   enum PNG_WRITE_FILTER_SUPPORTED = 0;
+} else {
+   enum PNG_WRITE_FILTER_SUPPORTED = 1;
+} // PNG_NO_WRITE_FILTER
+
 
 /* Turn this off to disable png_read_png() and
  * png_write_png() and leave the row_pointers member
  * out of the info structure.
  */
 version (PNG_NO_INFO_IMAGE) {
+   enum PNG_INFO_IMAGE_SUPPORTED = 0;
 } else {
-   version = PNG_INFO_IMAGE_SUPPORTED;
+   enum PNG_INFO_IMAGE_SUPPORTED = 1;
 } // PNG_NO_INFO_IMAGE
 
 /* Need the time information for converting tIME chunks */
-version (PNG_CONVERT_tIME_SUPPORTED) {
+static if (PNG_CONVERT_tIME_SUPPORTED) {
    /* "time.h" functions are not supported on WindowsCE */
-   import core.sys.posix.time;
+   public import core.sys.posix.time;
 } // PNG_CONVERT_tIME_SUPPORTED
 
 /* Some typedefs to get us started.  These should be safe on most of the
@@ -1440,7 +1745,7 @@ version (PNG_NO_STDIO) {
    } // _WIN32_WCE
 } // PNG_NO_STDIO
 
-version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
    alias double          * png_doublep;
 } // PNG_FLOATING_POINT_SUPPORTED
 
@@ -1453,7 +1758,7 @@ alias png_int_16      ** png_int_16pp;
 alias const char      ** png_const_charpp;
 alias char            ** png_charpp;
 alias png_fixed_point ** png_fixed_point_pp;
-version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
    alias double       ** png_doublepp;
 } // PNG_FLOATING_POINT_SUPPORTED
 
@@ -1537,15 +1842,20 @@ version (PNG_BUILD_DLL) {
  * but might be required for some pre-1.0.5c applications.
  */
 version (PNG_NO_GLOBAL_ARRAYS) {
-   version = PNG_USE_LOCAL_ARRAYS;
+   enum PNG_USE_GLOBAL_ARRAYS = 0;
+   enum PNG_USE_LOCAL_ARRAYS = 1;
 } else version(__GNUC__) {
-   version = PNG_USE_LOCAL_ARRAYS;
+   enum PNG_USE_GLOBAL_ARRAYS = 0;
+   enum PNG_USE_LOCAL_ARRAYS = 1;
 } else version (PNG_DLL) {
-   version = PNG_USE_LOCAL_ARRAYS;
+   enum PNG_USE_GLOBAL_ARRAYS = 0;
+   enum PNG_USE_LOCAL_ARRAYS = 1;
 } else version (_MSC_VER) {
-   version = PNG_USE_LOCAL_ARRAYS;
+   enum PNG_USE_GLOBAL_ARRAYS = 0;
+   enum PNG_USE_LOCAL_ARRAYS = 1;
 } else {
-   version = PNG_USE_GLOBAL_ARRAYS;
+   enum PNG_USE_GLOBAL_ARRAYS = 1;
+   enum PNG_USE_LOCAL_ARRAYS = 0;
 }
 
 // #ifdef __CYGWIN__
@@ -1731,7 +2041,7 @@ version (PNG_PEDANTIC_WARNINGS) {
 // #  define PNG_ABORT() abort()
 // #endif
 
-// version (PNG_SETJMP_SUPPORTED) {
+// static if (PNG_SETJMP_SUPPORTED) {
 //    jmp_buf png_jmpbuf(png_structp png_ptr) { return png_ptr.jmpbuf; }
 // } else {
 //    jmp_buf png_jmpbuf(png_structp png_ptr) {

@@ -538,6 +538,7 @@ version(PNG_VERSION_INFO_ONLY) {
 
 /* Include all user configurable info, including optional assembler routines */
 public import libpng12.pngconf;
+version = PNG_1_2_X;
 
 /*
  * Added at libpng-1.2.8 */
@@ -613,7 +614,7 @@ enum png_write_status_ptr_NULL = cast(png_write_status_ptr)null;
 // /* Variables declared in png.c - only it needs to define PNG_NO_EXTERN */
 version (PNG_NO_EXTERN) {
 } else version (PNG_ALWAYS_EXTERN) {
-   version(PNG_USE_GLOBAL_ARRAYS) {
+   static if (PNG_USE_GLOBAL_ARRAYS) {
       /* Need room for 99.99.99beta99z */
       extern const char png_libpng_ver[18];
    } else {
@@ -622,7 +623,7 @@ version (PNG_NO_EXTERN) {
       }
    } // PNG_USE_GLOBAL_ARRAYS
 
-   version(PNG_USE_GLOBAL_ARRAYS) {
+   static if (PNG_USE_GLOBAL_ARRAYS) {
       /* This was removed in version 1.0.5c */
       /* Structures to facilitate easy interlacing.  See png.c for more details */
       extern const int png_pass_start[7];
@@ -636,7 +637,7 @@ version (PNG_NO_EXTERN) {
       */
    }
 } else {
-   version(PNG_USE_GLOBAL_ARRAYS) {
+   static if (PNG_USE_GLOBAL_ARRAYS) {
       /* Need room for 99.99.99beta99z */
       extern const char png_libpng_ver[18];
    } else {
@@ -645,7 +646,7 @@ version (PNG_NO_EXTERN) {
       }
    } // PNG_USE_GLOBAL_ARRAYS
 
-   version(PNG_USE_GLOBAL_ARRAYS) {
+   static if (PNG_USE_GLOBAL_ARRAYS) {
       /* This was removed in version 1.0.5c */
       /* Structures to facilitate easy interlacing.  See png.c for more details */
       extern const int png_pass_start[7];
@@ -720,7 +721,7 @@ struct png_sPLT
 alias png_sPLT * png_sPLT_tp;
 alias png_sPLT ** png_sPLT_tpp;
 
-version(PNG_TEXT_SUPPORTED) {
+static if (PNG_TEXT_SUPPORTED) {
 /* png_text holds the contents of a text/ztxt/itxt chunk in a PNG file,
  * and whether that contents is compressed or not.  The "key" field
  * points to a regular zero-terminated C string.  The "text", "lang", and
@@ -740,7 +741,7 @@ struct png_text
    png_charp text;         /* comment, may be an empty string (ie "")
                               or a NULL pointer */
    png_size_t text_length; /* length of the text string */
-version(PNG_iTXt_SUPPORTED) {
+static if (PNG_iTXt_SUPPORTED) {
    png_size_t itxt_length; /* length of the itxt string */
    png_charp lang;         /* language code, 0-79 characters
                               or a NULL pointer */
@@ -781,7 +782,7 @@ struct png_time
 alias png_time * png_timep;
 alias png_time ** png_timepp;
 
-version(PNG_UNKNOWN_CHUNKS_SUPPORTED) {
+static if (PNG_UNKNOWN_CHUNKS_SUPPORTED) {
 struct png_unknown_chunk
 {
     png_byte name[5];
@@ -863,8 +864,8 @@ struct png_info
     * and initialize the appropriate fields below.
     */
 
-version(PNG_gAMA_SUPPORTED) {
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_gAMA_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
    /* The gAMA chunk describes the gamma characteristics of the system
     * on which the image was created, normally in the range [1.0, 2.5].
     * Data is valid if (valid & PNG_INFO_gAMA) is non-zero.
@@ -873,13 +874,13 @@ version(PNG_FLOATING_POINT_SUPPORTED) {
 } // PNG_FLOATING_POINT_SUPPORTED
 } // PNG_gAMA_SUPPORTED
 
-version(PNG_sRGB_SUPPORTED) {
+static if (PNG_sRGB_SUPPORTED) {
     /* GR-P, 0.96a */
     /* Data valid if (valid & PNG_INFO_sRGB) non-zero. */
    deprecated png_byte srgb_intent; /* sRGB rendering intent [0, 1, 2, or 3] */
 } // PNG_sRGB_SUPPORTED
 
-version(PNG_TEXT_SUPPORTED) {
+static if (PNG_TEXT_SUPPORTED) {
    /* The tEXt, and zTXt chunks contain human-readable textual data in
     * uncompressed, compressed, and optionally compressed forms, respectively.
     * The data in "text" is an array of pointers to uncompressed,
@@ -893,14 +894,14 @@ version(PNG_TEXT_SUPPORTED) {
    deprecated png_textp text; /* array of comments read/to write */
 } // PNG_TEXT_SUPPORTED
 
-version(PNG_tIME_SUPPORTED) {
+static if (PNG_tIME_SUPPORTED) {
    /* The tIME chunk holds the last time the displayed image data was
     * modified.  See the png_time struct for the contents of this struct.
     */
    deprecated png_time mod_time;
 } // PNG_tIME_SUPPORTED
 
-version(PNG_sBIT_SUPPORTED) {
+static if (PNG_sBIT_SUPPORTED) {
    /* The sBIT chunk specifies the number of significant high-order bits
     * in the pixel data.  Values are in the range [1, bit_depth], and are
     * only specified for the channels in the pixel data.  The contents of
@@ -919,13 +920,13 @@ version(PNG_sBIT_SUPPORTED) {
     * single color specified that should be treated as fully transparent.
     * Data is valid if (valid & PNG_INFO_tRNS) is non-zero.
     */
-version(PNG_tRNS_SUPPORTED) {
+static if (PNG_tRNS_SUPPORTED) {
    deprecated png_bytep trans; /* transparent values for paletted image */
    deprecated png_color_16 trans_values; /* transparent color for non-palette image */
-} else version(PNG_READ_EXPAND_SUPPORTED) {
+} else static if (PNG_READ_EXPAND_SUPPORTED) {
    deprecated png_bytep trans; /* transparent values for paletted image */
    deprecated png_color_16 trans_values; /* transparent color for non-palette image */
-} else version(PNG_READ_BACKGROUND_SUPPORTED) {
+} else static if (PNG_READ_BACKGROUND_SUPPORTED) {
    deprecated png_bytep trans; /* transparent values for paletted image */
    deprecated png_color_16 trans_values; /* transparent color for non-palette image */
 } // PNG_READ_BACKGROUND_SUPPORTED
@@ -936,13 +937,13 @@ version(PNG_tRNS_SUPPORTED) {
     * in "background" are normally in the same color space/depth as the
     * pixel data.  Data is valid if (valid & PNG_INFO_bKGD) is non-zero.
     */
-version(PNG_bKGD_SUPPORTED) {
+static if (PNG_bKGD_SUPPORTED) {
    deprecated png_color_16 background;
-} else version(PNG_READ_BACKGROUND_SUPPORTED) {
+} else static if (PNG_READ_BACKGROUND_SUPPORTED) {
    deprecated png_color_16 background;
 } // PNG_READ_BACKGROUND_SUPPORTED
 
-version(PNG_oFFs_SUPPORTED) {
+static if (PNG_oFFs_SUPPORTED) {
    /* The oFFs chunk gives the offset in "offset_unit_type" units rightwards
     * and downwards from the top-left corner of the display, page, or other
     * application-specific co-ordinate space.  See the PNG_OFFSET_ defines
@@ -953,7 +954,7 @@ version(PNG_oFFs_SUPPORTED) {
    deprecated png_byte offset_unit_type; /* offset units type */
 } // PNG_oFFs_SUPPORTED
 
-version(PNG_pHYs_SUPPORTED) {
+static if (PNG_pHYs_SUPPORTED) {
    /* The pHYs chunk gives the physical pixel density of the image for
     * display or printing in "phys_unit_type" units (see PNG_RESOLUTION_
     * defines below).  Data is valid if (valid & PNG_INFO_pHYs) is non-zero.
@@ -963,7 +964,7 @@ version(PNG_pHYs_SUPPORTED) {
    deprecated png_byte phys_unit_type; /* resolution type (see PNG_RESOLUTION_ below) */
 } // PNG_pHYs_SUPPORTED
 
-version(PNG_hIST_SUPPORTED) {
+static if (PNG_hIST_SUPPORTED) {
    /* The hIST chunk contains the relative frequency or importance of the
     * various palette entries, so that a viewer can intelligently select a
     * reduced-color palette, if required.  Data is an array of "num_palette"
@@ -973,14 +974,14 @@ version(PNG_hIST_SUPPORTED) {
    deprecated png_uint_16p hist;
 } // PNG_hIST_SUPPORTED
 
-version(PNG_cHRM_SUPPORTED) {
+static if (PNG_cHRM_SUPPORTED) {
    /* The cHRM chunk describes the CIE color characteristics of the monitor
     * on which the PNG was created.  This data allows the viewer to do gamut
     * mapping of the input image to ensure that the viewer sees the same
     * colors in the image as the creator.  Values are in the range
     * [0.0, 0.8].  Data valid if (valid & PNG_INFO_cHRM) non-zero.
     */
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
    deprecated float x_white;
    deprecated float y_white;
    deprecated float x_red;
@@ -992,7 +993,7 @@ version(PNG_FLOATING_POINT_SUPPORTED) {
 } // PNG_FLOATING_POINT_SUPPORTED
 } // PNG_cHRM_SUPPORTED
 
-version(PNG_pCAL_SUPPORTED) {
+static if (PNG_pCAL_SUPPORTED) {
    /* The pCAL chunk describes a transformation between the stored pixel
     * values and original physical data values used to create the image.
     * The integer range [0, 2^bit_depth - 1] maps to the floating-point
@@ -1014,20 +1015,20 @@ version(PNG_pCAL_SUPPORTED) {
 } // PNG_pCAL_SUPPORTED
 
 /* New members added in libpng-1.0.6 */
-version(PNG_FREE_ME_SUPPORTED) {
+static if (PNG_FREE_ME_SUPPORTED) {
    deprecated png_uint_32 free_me;     /* flags items libpng is responsible for freeing */
 } // PNG_FREE_ME_SUPPORTED
 
    /* Storage for unknown chunks that the library doesn't recognize. */
-version(PNG_UNKNOWN_CHUNKS_SUPPORTED) {
+static if (PNG_UNKNOWN_CHUNKS_SUPPORTED) {
    deprecated png_unknown_chunkp unknown_chunks;
    deprecated png_size_t unknown_chunks_num;
-} else version(PNG_HANDLE_AS_UNKNOWN_SUPPORTED) {
+} else static if (PNG_HANDLE_AS_UNKNOWN_SUPPORTED) {
    deprecated png_unknown_chunkp unknown_chunks;
    deprecated png_size_t unknown_chunks_num;
 } // PNG_HANDLE_AS_UNKNOWN_SUPPORTED
 
-version(PNG_iCCP_SUPPORTED) {
+static if (PNG_iCCP_SUPPORTED) {
    /* iCCP chunk data. */
    deprecated png_charp iccp_name;     /* profile name */
    deprecated png_charp iccp_profile;  /* International Color Consortium profile data */
@@ -1036,13 +1037,13 @@ version(PNG_iCCP_SUPPORTED) {
    deprecated png_byte iccp_compression; /* Always zero */
 } // PNG_iCCP_SUPPORTED
 
-version(PNG_sPLT_SUPPORTED) {
+static if (PNG_sPLT_SUPPORTED) {
    /* Data on sPLT chunks (there may be more than one). */
    deprecated png_sPLT_tp splt_palettes;
    deprecated png_uint_32 splt_palettes_num;
 } // PNG_sPLT_SUPPORTED
 
-version(PNG_sCAL_SUPPORTED) {
+static if (PNG_sCAL_SUPPORTED) {
    /* The sCAL chunk describes the actual physical dimensions of the
     * subject matter of the graphic.  The chunk contains a unit specification
     * a byte value, and two ASCII strings representing floating-point
@@ -1051,31 +1052,31 @@ version(PNG_sCAL_SUPPORTED) {
     * here.  Data values are valid if (valid & PNG_INFO_sCAL) is non-zero.
     */
    deprecated png_byte scal_unit;         /* unit of physical scale */
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
    deprecated double scal_pixel_width;    /* width of one pixel */
    deprecated double scal_pixel_height;   /* height of one pixel */
 } // PNG_FLOATING_POINT_SUPPORTED
 
-version(PNG_FIXED_POINT_SUPPORTED) {
+static if (PNG_FIXED_POINT_SUPPORTED) {
    deprecated png_charp scal_s_width;     /* string containing height */
    deprecated png_charp scal_s_height;    /* string containing width */
 } // PNG_FIXED_POINT_SUPPORTED
 } // PNG_sCAL_SUPPORTED
 
-version(PNG_INFO_IMAGE_SUPPORTED) {
+static if (PNG_INFO_IMAGE_SUPPORTED) {
    /* Memory has been allocated if (valid & PNG_ALLOCATED_INFO_ROWS) non-zero */
    /* Data valid if (valid & PNG_INFO_IDAT) non-zero */
    deprecated png_bytepp row_pointers;        /* the image bits */
 }
 
-version(PNG_FIXED_POINT_SUPPORTED) {
-version(PNG_gAMA_SUPPORTED) {
+static if (PNG_FIXED_POINT_SUPPORTED) {
+static if (PNG_gAMA_SUPPORTED) {
    deprecated png_fixed_point int_gamma; /* gamma of image, if (valid & PNG_INFO_gAMA) */
 }
 }
 
-version(PNG_cHRM_SUPPORTED) {
-version(PNG_FIXED_POINT_SUPPORTED) {
+static if (PNG_cHRM_SUPPORTED) {
+static if (PNG_FIXED_POINT_SUPPORTED) {
    deprecated png_fixed_point int_x_white;
    deprecated png_fixed_point int_y_white;
    deprecated png_fixed_point int_x_red;
@@ -1098,9 +1099,9 @@ enum PNG_SIZE_MAX = (cast(png_size_t)(-1));
 
 /* PNG_MAX_UINT is deprecated; use PNG_UINT_31_MAX instead. */
 version(PNG_1_0_X) {
-	alias PNG_MAX_UINT PNG_UINT_31_MAX;
+	alias PNG_MAX_UINT = PNG_UINT_31_MAX;
 } else version(PNG_1_2_X) {
-	alias PNG_MAX_UINT PNG_UINT_31_MAX;
+	alias PNG_MAX_UINT = PNG_UINT_31_MAX;
 }
 
 /* These describe the color_type field in png_info. */
@@ -1229,19 +1230,19 @@ alias void function(png_structp, png_infop) png_progressive_end_ptr;
 alias void function(png_structp, png_bytep, png_uint_32, int) png_progressive_row_ptr;
 } // PNG_PROGRESSIVE_READ_SUPPORTED
 
-version(PNG_READ_USER_TRANSFORM_SUPPORTED) {
+static if (PNG_READ_USER_TRANSFORM_SUPPORTED) {
 	alias void function(png_structp, png_row_infop, png_bytep) png_user_transform_ptr;
-} else version(PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
+} else static if (PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
 	alias void function(png_structp, png_row_infop, png_bytep) png_user_transform_ptr;
 } else version(PNG_LEGACY_SUPPORTED) {
 	alias void function(png_structp, png_row_infop, png_bytep) png_user_transform_ptr;
 }
 
-version(PNG_USER_CHUNKS_SUPPORTED) {
+static if (PNG_USER_CHUNKS_SUPPORTED) {
 	alias int function(png_structp, png_unknown_chunkp) png_user_chunk_ptr;
 }
 
-version(PNG_UNKNOWN_CHUNKS_SUPPORTED) {
+static if (PNG_UNKNOWN_CHUNKS_SUPPORTED) {
 	alias void function(png_structp) png_unknown_chunk_ptr;
 }
 
@@ -1282,7 +1283,7 @@ alias void function(png_structp, png_voidp) png_free_ptr;
 
 struct png_struct_def
 {
-version(PNG_SETJMP_SUPPORTED) {
+static if (PNG_SETJMP_SUPPORTED) {
    import core.sys.posix.setjmp;
    jmp_buf jmpbuf;            /* used in png_error */
 } // PNG_SETJMP_SUPPORTED
@@ -1293,21 +1294,21 @@ version(PNG_SETJMP_SUPPORTED) {
    deprecated png_rw_ptr read_data_fn;   /* function for reading input data */
    deprecated png_voidp io_ptr;          /* ptr to application struct for I/O functions */
 
-version(PNG_READ_USER_TRANSFORM_SUPPORTED) {
+static if (PNG_READ_USER_TRANSFORM_SUPPORTED) {
    deprecated png_user_transform_ptr read_user_transform_fn; /* user read transform */
 } // PNG_READ_USER_TRANSFORM_SUPPORTED
 
-version(PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
+static if (PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
    deprecated png_user_transform_ptr write_user_transform_fn; /* user write transform */
 }
 
 /* These were added in libpng-1.0.2 */
-version(PNG_USER_TRANSFORM_PTR_SUPPORTED) {
-version(PNG_READ_USER_TRANSFORM_SUPPORTED) {
+static if (PNG_USER_TRANSFORM_PTR_SUPPORTED) {
+static if (PNG_READ_USER_TRANSFORM_SUPPORTED) {
    deprecated png_voidp user_transform_ptr; /* user supplied struct for user transform */
    deprecated png_byte user_transform_depth;    /* bit depth of user transformed pixels */
    deprecated png_byte user_transform_channels; /* channels in user transformed pixels */
-} else version(PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
+} else static if (PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
    deprecated png_voidp user_transform_ptr; /* user supplied struct for user transform */
    deprecated png_byte user_transform_depth;    /* bit depth of user transformed pixels */
    deprecated png_byte user_transform_channels; /* channels in user transformed pixels */
@@ -1336,7 +1337,7 @@ static if(0) { /* Replaced with the following in libpng-1.2.43 */
    png_size_t irowbytes;
 }
 /* Added in libpng-1.2.43 */
-version(PNG_USER_LIMITS_SUPPORTED) {
+static if (PNG_USER_LIMITS_SUPPORTED) {
    /* Added in libpng-1.4.0: Total number of sPLT, text, and unknown
     * chunks that can be stored (0 means unlimited).
     */
@@ -1374,15 +1375,13 @@ version(PNG_NO_WRITE_FILTER) {
    deprecated png_byte usr_channels;     /* channels at start of write */
    deprecated png_byte sig_bytes;        /* magic bytes read/written from start of file */
 
-version(PNG_READ_FILLER_SUPPORTED) {
+static if (PNG_READ_FILLER_SUPPORTED) {
    version(PNG_LEGACY_SUPPORTED) {
       deprecated png_byte filler;           /* filler byte for pixel expansion */
    } else {
       deprecated png_uint_16 filler;           /* filler bytes for pixel expansion */
    }
-}
-
-version(PNG_WRITE_FILLER_SUPPORTED) {
+} else static if (PNG_WRITE_FILLER_SUPPORTED) {
    version(PNG_LEGACY_SUPPORTED) {
       deprecated png_byte filler;           /* filler byte for pixel expansion */
    } else {
@@ -1390,45 +1389,45 @@ version(PNG_WRITE_FILLER_SUPPORTED) {
    }
 } // PNG_WRITE_FILLER_SUPPORTED
 
-version(PNG_bKGD_SUPPORTED) {
+static if (PNG_bKGD_SUPPORTED) {
    deprecated png_byte background_gamma_type;
-   version(PNG_FLOATING_POINT_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       deprecated float background_gamma;
    } // PNG_FLOATING_POINT_SUPPORTED
    deprecated png_color_16 background;   /* background color in screen gamma space */
-   version(PNG_READ_GAMMA_SUPPORTED) {
+   static if (PNG_READ_GAMMA_SUPPORTED) {
       deprecated png_color_16 background_1; /* background normalized to gamma 1.0 */
    } // PNG_READ_GAMMA_SUPPORTED
 } // PNG_bKGD_SUPPORTED
 
-version(PNG_WRITE_FLUSH_SUPPORTED) {
+static if (PNG_WRITE_FLUSH_SUPPORTED) {
    deprecated png_flush_ptr output_flush_fn; /* Function for flushing output */
    deprecated png_uint_32 flush_dist;    /* how many rows apart to flush, 0 - no flush */
    deprecated png_uint_32 flush_rows;    /* number of rows written since last flush */
 }
 
-version(PNG_READ_GAMMA_SUPPORTED) {
+static if (PNG_READ_GAMMA_SUPPORTED) {
    deprecated int gamma_shift;      /* number of "insignificant" bits 16-bit gamma */
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
    deprecated float gamma;          /* file gamma value */
    deprecated float screen_gamma;   /* screen gamma value (display_exponent) */
 } // PNG_FLOATING_POINT_SUPPORTED
-} else version(PNG_READ_BACKGROUND_SUPPORTED) {
+} else static if (PNG_READ_BACKGROUND_SUPPORTED) {
    deprecated int gamma_shift;      /* number of "insignificant" bits 16-bit gamma */
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
    deprecated float gamma;          /* file gamma value */
    deprecated float screen_gamma;   /* screen gamma value (display_exponent) */
 } // PNG_FLOATING_POINT_SUPPORTED
 } // PNG_READ_BACKGROUND_SUPPORTED
 
-version(PNG_READ_GAMMA_SUPPORTED) {
+static if (PNG_READ_GAMMA_SUPPORTED) {
    deprecated png_bytep gamma_table;     /* gamma table for 8-bit depth files */
    deprecated png_bytep gamma_from_1;    /* converts from 1.0 to screen */
    deprecated png_bytep gamma_to_1;      /* converts from file to 1.0 */
    deprecated png_uint_16pp gamma_16_table; /* gamma table for 16-bit depth files */
    deprecated png_uint_16pp gamma_16_from_1; /* converts from 1.0 to screen */
    deprecated png_uint_16pp gamma_16_to_1; /* converts from file to 1.0 */
-} else version(PNG_READ_BACKGROUND_SUPPORTED) {
+} else static if (PNG_READ_BACKGROUND_SUPPORTED) {
    deprecated png_bytep gamma_table;     /* gamma table for 8-bit depth files */
    deprecated png_bytep gamma_from_1;    /* converts from 1.0 to screen */
    deprecated png_bytep gamma_to_1;      /* converts from file to 1.0 */
@@ -1437,28 +1436,25 @@ version(PNG_READ_GAMMA_SUPPORTED) {
    deprecated png_uint_16pp gamma_16_to_1; /* converts from file to 1.0 */
 } // PNG_READ_BACKGROUND_SUPPORTED
 
-version(PNG_READ_GAMMA_SUPPORTED) {
+static if (PNG_READ_GAMMA_SUPPORTED) {
    deprecated png_color_8 sig_bit;       /* significant bits in each available channel */
-} else version(PNG_sBIT_SUPPORTED) {
+} else static if (PNG_sBIT_SUPPORTED) {
    deprecated png_color_8 sig_bit;       /* significant bits in each available channel */
 } // PNG_sBIT_SUPPORTED
 
-version(PNG_READ_SHIFT_SUPPORTED) {
+static if (PNG_READ_SHIFT_SUPPORTED) {
    deprecated png_color_8 shift;         /* shift for significant bit tranformation */
-} else version(PNG_WRITE_SHIFT_SUPPORTED) {
+} else static if (PNG_WRITE_SHIFT_SUPPORTED) {
    deprecated png_color_8 shift;         /* shift for significant bit tranformation */
 }
 
-version(PNG_tRNS_SUPPORTED) {
+static if (PNG_tRNS_SUPPORTED) {
    deprecated png_bytep trans;           /* transparency values for paletted files */
    deprecated png_color_16 trans_values; /* transparency values for non-paletted files */
-} else version(PNG_READ_BACKGROUND_SUPPORTED) {
+} else static if (PNG_READ_BACKGROUND_SUPPORTED) {
    deprecated png_bytep trans;           /* transparency values for paletted files */
    deprecated png_color_16 trans_values; /* transparency values for non-paletted files */
-} else version(PNG_READ_EXPAND_SUPPORTED) {
-   deprecated png_bytep trans;           /* transparency values for paletted files */
-   deprecated png_color_16 trans_values; /* transparency values for non-paletted files */
-} else version(PNG_READ_BACKGROUND_SUPPORTED) {
+} else static if (PNG_READ_EXPAND_SUPPORTED) {
    deprecated png_bytep trans;           /* transparency values for paletted files */
    deprecated png_color_16 trans_values; /* transparency values for non-paletted files */
 }
@@ -1481,7 +1477,7 @@ version(PNG_PROGRESSIVE_READ_SUPPORTED) {
    deprecated int process_mode;                 /* what push library is currently doing */
    deprecated int cur_palette;                  /* current push library palette index */
 
-   version(PNG_TEXT_SUPPORTED) {
+   static if (PNG_TEXT_SUPPORTED) {
      deprecated png_size_t current_text_size;   /* current size of text input data */
      deprecated png_size_t current_text_left;   /* how much text left to read in input */
      deprecated png_charp current_text;         /* current text chunk buffer */
@@ -1505,18 +1501,18 @@ version(__TURBOC__) {
    }
 }
 
-version(PNG_READ_DITHER_SUPPORTED) {
+static if (PNG_READ_DITHER_SUPPORTED) {
    deprecated png_bytep palette_lookup;         /* lookup table for dithering */
    deprecated png_bytep dither_index;           /* index translation for palette files */
 }
 
-version(PNG_READ_DITHER_SUPPORTED) {
+static if (PNG_READ_DITHER_SUPPORTED) {
    deprecated png_uint_16p hist;                /* histogram */
-} else version(PNG_hIST_SUPPORTED) {
+} else static if (PNG_hIST_SUPPORTED) {
    deprecated png_uint_16p hist;                /* histogram */
 }
 
-version(PNG_WRITE_WEIGHTED_FILTER_SUPPORTED) {
+static if (PNG_WRITE_WEIGHTED_FILTER_SUPPORTED) {
    deprecated png_byte heuristic_method;        /* heuristic for row filter selection */
    deprecated png_byte num_prev_filters;        /* number of weights for previous rows */
    deprecated png_bytep prev_filters;           /* filter type(s) of previous row(s) */
@@ -1524,30 +1520,30 @@ version(PNG_WRITE_WEIGHTED_FILTER_SUPPORTED) {
    deprecated png_uint_16p inv_filter_weights;  /* 1/weight(s) for previous line(s) */
    deprecated png_uint_16p filter_costs;        /* relative filter calculation cost */
    deprecated png_uint_16p inv_filter_costs;    /* 1/relative filter calculation cost */
-}
+} // PNG_WRITE_WEIGHTED_FILTER_SUPPORTED
 
-version(PNG_TIME_RFC1123_SUPPORTED) {
+static if (PNG_TIME_RFC1123_SUPPORTED) {
    deprecated png_charp time_buffer;            /* String to hold RFC 1123 time text */
-}
+} // PNG_TIME_RFC1123_SUPPORTED
 
 /* New members added in libpng-1.0.6 */
 
-version(PNG_FREE_ME_SUPPORTED) {
+static if (PNG_FREE_ME_SUPPORTED) {
    deprecated png_uint_32 free_me;   /* flags items libpng is responsible for freeing */
 } // PNG_FREE_ME_SUPPORTED
 
-version(PNG_USER_CHUNKS_SUPPORTED) {
+static if (PNG_USER_CHUNKS_SUPPORTED) {
    deprecated png_voidp user_chunk_ptr;
    deprecated png_user_chunk_ptr read_user_chunk_fn; /* user read chunk handler */
 } // PNG_USER_CHUNKS_SUPPORTED
 
-version(PNG_HANDLE_AS_UNKNOWN_SUPPORTED) {
+static if (PNG_HANDLE_AS_UNKNOWN_SUPPORTED) {
    deprecated int num_chunk_list;
    deprecated png_bytep chunk_list;
 } // PNG_HANDLE_AS_UNKNOWN_SUPPORTED
 
 /* New members added in libpng-1.0.3 */
-version(PNG_READ_RGB_TO_GRAY_SUPPORTED) {
+static if (PNG_READ_RGB_TO_GRAY_SUPPORTED) {
    deprecated png_byte rgb_to_gray_status;
    /* These were changed from png_byte in libpng-1.0.6 */
    deprecated png_uint_16 rgb_to_gray_red_coeff;
@@ -1556,21 +1552,21 @@ version(PNG_READ_RGB_TO_GRAY_SUPPORTED) {
 } // PNG_READ_RGB_TO_GRAY_SUPPORTED
 
 /* New member added in libpng-1.0.4 (renamed in 1.0.9) */
-version (PNG_MNG_FEATURES_SUPPORTED) {
+static if (PNG_MNG_FEATURES_SUPPORTED) {
    /* Changed from png_byte to png_uint_32 at version 1.2.0 */
    version (PNG_1_0_X) {
       deprecated png_byte mng_features_permitted;
    } else {
       deprecated png_uint_32 mng_features_permitted;
    } // PNG_1_0_X
-} else version (PNG_READ_EMPTY_PLTE_SUPPORTED) {
+} else static if (PNG_READ_EMPTY_PLTE_SUPPORTED) {
    /* Changed from png_byte to png_uint_32 at version 1.2.0 */
    version (PNG_1_0_X) {
       deprecated png_byte mng_features_permitted;
    } else {
       deprecated png_uint_32 mng_features_permitted;
    } // PNG_1_0_X
-} else version (PNG_WRITE_EMPTY_PLTE_SUPPORTED) {
+} else static if (PNG_WRITE_EMPTY_PLTE_SUPPORTED) {
    /* Changed from png_byte to png_uint_32 at version 1.2.0 */
    version (PNG_1_0_X) {
       deprecated png_byte mng_features_permitted;
@@ -1580,14 +1576,14 @@ version (PNG_MNG_FEATURES_SUPPORTED) {
 }
 
 /* New member added in libpng-1.0.7 */
-version(PNG_READ_GAMMA_SUPPORTED) {
+static if (PNG_READ_GAMMA_SUPPORTED) {
    deprecated png_fixed_point int_gamma;
-} else version(PNG_READ_BACKGROUND_SUPPORTED) {
+} else static if (PNG_READ_BACKGROUND_SUPPORTED) {
    deprecated png_fixed_point int_gamma;
 }
 
 /* New member added in libpng-1.0.9, ifdef'ed out in 1.0.12, enabled in 1.2.0 */
-version(PNG_MNG_FEATURES_SUPPORTED) {
+static if (PNG_MNG_FEATURES_SUPPORTED) {
    deprecated png_byte filter_type;
 }
 
@@ -1597,10 +1593,10 @@ version(PNG_1_0_X) {
 }
 
 /* New members added in libpng-1.2.0 */
-version(PNG_ASSEMBLER_CODE_SUPPORTED) {
+static if (PNG_ASSEMBLER_CODE_SUPPORTED) {
    version(PNG_1_0_X) {
    } else {
-      version(PNG_MMX_CODE_SUPPORTED) {
+      static if (PNG_MMX_CODE_SUPPORTED) {
          deprecated png_byte     mmx_bitdepth_threshold;
          deprecated png_uint_32  mmx_rowbytes_threshold;
       } // PNG_MMX_CODE_SUPPORTED
@@ -1609,7 +1605,7 @@ version(PNG_ASSEMBLER_CODE_SUPPORTED) {
 } // PNG_ASSEMBLER_CODE_SUPPORTED
 
 /* New members added in libpng-1.0.2 but first enabled by default in 1.2.0 */
-version(PNG_USER_MEM_SUPPORTED) {
+static if (PNG_USER_MEM_SUPPORTED) {
    deprecated png_voidp mem_ptr;            /* user supplied struct for mem functions */
    deprecated png_malloc_ptr malloc_fn;     /* function for allocating memory */
    deprecated png_free_ptr free_fn;         /* function for freeing memory */
@@ -1618,7 +1614,7 @@ version(PNG_USER_MEM_SUPPORTED) {
 /* New member added in libpng-1.0.13 and 1.2.0 */
    deprecated png_bytep big_row_buf;        /* buffer to save current (unfiltered) row */
 
-version(PNG_READ_DITHER_SUPPORTED) {
+static if (PNG_READ_DITHER_SUPPORTED) {
 /* The following three members were added at version 1.0.14 and 1.2.4 */
    deprecated png_bytep dither_sort;        /* working sort array */
    deprecated png_bytep index_to_palette;   /* where the original index currently is */
@@ -1630,13 +1626,13 @@ version(PNG_READ_DITHER_SUPPORTED) {
 /* New members added in libpng-1.0.16 and 1.2.6 */
    deprecated png_byte compression_type;
 
-version(PNG_USER_LIMITS_SUPPORTED) {
+static if (PNG_USER_LIMITS_SUPPORTED) {
    deprecated png_uint_32 user_width_max;
    deprecated png_uint_32 user_height_max;
 } // PNG_USER_LIMITS_SUPPORTED
 
 /* New member added in libpng-1.0.25 and 1.2.17 */
-version(PNG_UNKNOWN_CHUNKS_SUPPORTED) {
+static if (PNG_UNKNOWN_CHUNKS_SUPPORTED) {
    /* Storage for unknown chunk that the library doesn't recognize. */
    deprecated png_unknown_chunk unknown_chunk;
 } // PNG_UNKNOWN_CHUNKS_SUPPORTED
@@ -1694,11 +1690,11 @@ png_structp png_create_write_struct(png_const_charp user_png_ver,
    png_error_ptr error_fn,
    png_error_ptr warn_fn);
 
-version(PNG_WRITE_SUPPORTED) {
+static if (PNG_WRITE_SUPPORTED) {
 png_uint_32 png_get_compression_buffer_size(png_structp png_ptr);
 } // PNG_WRITE_SUPPORTED
 
-version(PNG_WRITE_SUPPORTED) {
+static if (PNG_WRITE_SUPPORTED) {
 void png_set_compression_buffer_size(png_structp png_ptr, png_uint_32 size);
 } // PNG_WRITE_SUPPORTED
 
@@ -1706,7 +1702,7 @@ void png_set_compression_buffer_size(png_structp png_ptr, png_uint_32 size);
 int png_reset_zstream(png_structp png_ptr);
 
 /* New functions added in libpng-1.0.2 (not enabled by default until 1.2.0) */
-version(PNG_USER_MEM_SUPPORTED) {
+static if (PNG_USER_MEM_SUPPORTED) {
 png_structp png_create_read_struct_2(png_const_charp user_png_ver,
    png_voidp error_ptr,
     png_error_ptr error_fn,
@@ -1748,12 +1744,12 @@ png_infop png_create_info_struct(png_structp png_ptr);
 version(PNG_1_0_X) {
    /* Initialize the info structure (old interface - DEPRECATED) */
    deprecated void png_info_init(png_infop info_ptr) {
-      png_info_init_3(&info_ptr, png_sizeof(png_info));
+      png_info_init_3(&info_ptr, png_info.sizeof);
    }
 } else version(PNG_1_2_X) {
    /* Initialize the info structure (old interface - DEPRECATED) */
    deprecated void png_info_init(png_infop info_ptr) {
-      png_info_init_3(&info_ptr, png_sizeof(png_info));
+      png_info_init_3(&info_ptr, png_info.sizeof);
    }
 } // PNG_1_2_X
 
@@ -1763,16 +1759,16 @@ void png_info_init_3(png_infopp info_ptr, png_size_t png_info_struct_size);
 void png_write_info_before_PLTE(png_structp png_ptr, png_infop info_ptr);
 void png_write_info(png_structp png_ptr, png_infop info_ptr);
 
-version(PNG_SEQUENTIAL_READ_SUPPORTED) {
+static if (PNG_SEQUENTIAL_READ_SUPPORTED) {
 /* Read the information before the actual image data. */
 void png_read_info(png_structp png_ptr, png_infop info_ptr);
 } // PNG_SEQUENTIAL_READ_SUPPORTED
 
-version(PNG_TIME_RFC1123_SUPPORTED) {
+static if (PNG_TIME_RFC1123_SUPPORTED) {
 png_charp png_convert_to_rfc1123(png_structp png_ptr, png_timep ptime);
 } // PNG_TIME_RFC1123_SUPPORTED
 
-version(PNG_CONVERT_tIME_SUPPORTED) {
+static if (PNG_CONVERT_tIME_SUPPORTED) {
 /* Convert from a struct tm to png_time */
 void png_convert_from_struct_tm(png_timep ptime, tm * ttime);
 
@@ -1780,7 +1776,7 @@ void png_convert_from_struct_tm(png_timep ptime, tm * ttime);
 void png_convert_from_time_t(png_timep ptime, time_t ttime);
 } // PNG_CONVERT_tIME_SUPPORTED
 
-version(PNG_READ_EXPAND_SUPPORTED) {
+static if (PNG_READ_EXPAND_SUPPORTED) {
 /* Expand data to 24-bit RGB, or 8-bit grayscale, with alpha if available. */
 void png_set_expand(png_structp png_ptr);
 version(PNG_1_0_X) {
@@ -1798,22 +1794,22 @@ deprecated void png_set_gray_1_2_4_to_8 (png_structp png_ptr);
 } // PNG_1_2_X
 } // PNG_READ_EXPAND_SUPPORTED
 
-version(PNG_READ_BGR_SUPPORTED) {
+static if (PNG_READ_BGR_SUPPORTED) {
 /* Use blue, green, red order for pixels. */
 void png_set_bgr(png_structp png_ptr);
-} else version(PNG_WRITE_BGR_SUPPORTED) {
+} else static if (PNG_WRITE_BGR_SUPPORTED) {
 /* Use blue, green, red order for pixels. */
 void png_set_bgr(png_structp png_ptr);
 } // PNG_WRITE_BGR_SUPPORTED
 
-version(PNG_READ_GRAY_TO_RGB_SUPPORTED) {
+static if (PNG_READ_GRAY_TO_RGB_SUPPORTED) {
 /* Expand the grayscale to 24-bit RGB if necessary. */
 void png_set_gray_to_rgb(png_structp png_ptr);
 } // PNG_READ_GRAY_TO_RGB_SUPPORTED
 
-version(PNG_READ_RGB_TO_GRAY_SUPPORTED) {
+static if (PNG_READ_RGB_TO_GRAY_SUPPORTED) {
 /* Reduce RGB to grayscale. */
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
 void png_set_rgb_to_gray(png_structp png_ptr,
       int error_action,
       double red,
@@ -1828,23 +1824,23 @@ png_byte png_get_rgb_to_gray_status(png_structp png_ptr);
 
 void png_build_grayscale_palette(int bit_depth, png_colorp palette);
 
-version(PNG_READ_STRIP_ALPHA_SUPPORTED) {
+static if (PNG_READ_STRIP_ALPHA_SUPPORTED) {
 void png_set_strip_alpha(png_structp png_ptr);
 } // PNG_READ_STRIP_ALPHA_SUPPORTED
 
-version(PNG_READ_SWAP_ALPHA_SUPPORTED) {
+static if (PNG_READ_SWAP_ALPHA_SUPPORTED) {
 void png_set_swap_alpha(png_structp png_ptr);
-} else version(PNG_WRITE_SWAP_ALPHA_SUPPORTED) {
+} else static if (PNG_WRITE_SWAP_ALPHA_SUPPORTED) {
 void png_set_swap_alpha(png_structp png_ptr);
 } // PNG_WRITE_SWAP_ALPHA_SUPPORTED
 
-version(PNG_READ_INVERT_ALPHA_SUPPORTED) {
+static if (PNG_READ_INVERT_ALPHA_SUPPORTED) {
 void png_set_invert_alpha(png_structp png_ptr);
-} else version(PNG_WRITE_INVERT_ALPHA_SUPPORTED) {
+} else static if (PNG_WRITE_INVERT_ALPHA_SUPPORTED) {
 void png_set_invert_alpha(png_structp png_ptr);
 } // PNG_WRITE_INVERT_ALPHA_SUPPORTED
 
-version(PNG_READ_FILLER_SUPPORTED) {
+static if (PNG_READ_FILLER_SUPPORTED) {
 /* Add a filler byte to 8-bit Gray or 24-bit RGB images. */
 void png_set_filler(png_structp png_ptr, png_uint_32 filler, int flags);
 /* The values of the PNG_FILLER_ defines should NOT be changed */
@@ -1855,7 +1851,7 @@ version(PNG_1_0_X) {
 } else {
 void png_set_add_alpha(png_structp png_ptr, png_uint_32 filler, int flags);
 } // !PNG_1_0_X
-} else version(PNG_WRITE_FILLER_SUPPORTED) {
+} else static if (PNG_WRITE_FILLER_SUPPORTED) {
 /* Add a filler byte to 8-bit Gray or 24-bit RGB images. */
 void png_set_filler(png_structp png_ptr, png_uint_32 filler, int flags);
 /* The values of the PNG_FILLER_ defines should NOT be changed */
@@ -1868,57 +1864,57 @@ void png_set_add_alpha(png_structp png_ptr, png_uint_32 filler, int flags);
 } // !PNG_1_0_X
 } // PNG_WRITE_FILLER_SUPPORTED
 
-version(PNG_READ_SWAP_SUPPORTED) {
+static if (PNG_READ_SWAP_SUPPORTED) {
 /* Swap bytes in 16-bit depth files. */
 void png_set_swap(png_structp png_ptr);
-} else version(PNG_WRITE_SWAP_SUPPORTED) {
+} else static if (PNG_WRITE_SWAP_SUPPORTED) {
 /* Swap bytes in 16-bit depth files. */
 void png_set_swap(png_structp png_ptr);
 } // PNG_WRITE_SWAP_SUPPORTED
 
-version(PNG_READ_PACK_SUPPORTED) {
+static if (PNG_READ_PACK_SUPPORTED) {
 /* Use 1 byte per pixel in 1, 2, or 4-bit depth files. */
 void png_set_packing(png_structp png_ptr);
-} else version(PNG_WRITE_PACK_SUPPORTED) {
+} else static if (PNG_WRITE_PACK_SUPPORTED) {
 /* Use 1 byte per pixel in 1, 2, or 4-bit depth files. */
 void png_set_packing(png_structp png_ptr);
 } // PNG_WRITE_PACK_SUPPORTED
 
-version(PNG_READ_PACKSWAP_SUPPORTED) {
+static if (PNG_READ_PACKSWAP_SUPPORTED) {
 /* Swap packing order of pixels in bytes. */
 void png_set_packswap(png_structp png_ptr);
-} else version(PNG_WRITE_PACKSWAP_SUPPORTED) {
+} else static if (PNG_WRITE_PACKSWAP_SUPPORTED) {
 /* Swap packing order of pixels in bytes. */
 void png_set_packswap(png_structp png_ptr);
 } // PNG_WRITE_PACKSWAP_SUPPORTED
 
-version(PNG_READ_SHIFT_SUPPORTED) {
+static if (PNG_READ_SHIFT_SUPPORTED) {
 /* Converts files to legal bit depths. */
 void png_set_shift(png_structp png_ptr, png_color_8p true_bits);
-} else version(PNG_WRITE_SHIFT_SUPPORTED) {
+} else static if (PNG_WRITE_SHIFT_SUPPORTED) {
 /* Converts files to legal bit depths. */
 void png_set_shift(png_structp png_ptr, png_color_8p true_bits);
 } // PNG_WRITE_SHIFT_SUPPORTED
 
-version(PNG_READ_INTERLACING_SUPPORTED) {
+static if (PNG_READ_INTERLACING_SUPPORTED) {
 /* Have the code handle the interlacing.  Returns the number of passes. */
 int png_set_interlace_handling(png_structp png_ptr);
-} else version(PNG_WRITE_INTERLACING_SUPPORTED) {
+} else static if (PNG_WRITE_INTERLACING_SUPPORTED) {
 /* Have the code handle the interlacing.  Returns the number of passes. */
 int png_set_interlace_handling(png_structp png_ptr);
 } // PNG_WRITE_INTERLACING_SUPPORTED
 
-version(PNG_READ_INVERT_SUPPORTED) {
+static if (PNG_READ_INVERT_SUPPORTED) {
 /* Invert monochrome files */
 void png_set_invert_mono(png_structp png_ptr);
-} else version(PNG_WRITE_INVERT_SUPPORTED) {
+} else static if (PNG_WRITE_INVERT_SUPPORTED) {
 /* Invert monochrome files */
 void png_set_invert_mono(png_structp png_ptr);
 } // PNG_WRITE_INVERT_SUPPORTED
 
-version(PNG_READ_BACKGROUND_SUPPORTED) {
+static if (PNG_READ_BACKGROUND_SUPPORTED) {
 /* Handle alpha and tRNS by replacing with a background color. */
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
 void png_set_background(png_structp png_ptr,
       png_color_16p background_color,
       int background_gamma_code,
@@ -1931,12 +1927,12 @@ enum PNG_BACKGROUND_GAMMA_FILE =    2;
 enum PNG_BACKGROUND_GAMMA_UNIQUE =  3;
 } // PNG_READ_BACKGROUND_SUPPORTED
 
-version(PNG_READ_16_TO_8_SUPPORTED) {
+static if (PNG_READ_16_TO_8_SUPPORTED) {
 /* Strip the second byte of information from a 16-bit depth file. */
 void png_set_strip_16(png_structp png_ptr);
 } // PNG_READ_16_TO_8_SUPPORTED
 
-version(PNG_READ_DITHER_SUPPORTED) {
+static if (PNG_READ_DITHER_SUPPORTED) {
 /* Turn on dithering, and reduce the palette to the number of colors available. */
 void png_set_dither(png_structp png_ptr,
       png_colorp palette,
@@ -1946,36 +1942,36 @@ void png_set_dither(png_structp png_ptr,
       int full_dither);
 } // PNG_READ_DITHER_SUPPORTED
 
-version(PNG_READ_GAMMA_SUPPORTED) {
+static if (PNG_READ_GAMMA_SUPPORTED) {
 /* Handle gamma correction. Screen_gamma=(display_exponent) */
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
 void png_set_gamma(png_structp png_ptr, double screen_gamma, double default_file_gamma);
 } // PNG_FLOATING_POINT_SUPPORTED
 } // PNG_READ_GAMMA_SUPPORTED
 
 version(PNG_1_0_X) {
-version(PNG_READ_EMPTY_PLTE_SUPPORTED) {
+static if (PNG_READ_EMPTY_PLTE_SUPPORTED) {
 /* Permit or disallow empty PLTE (0: not permitted, 1: permitted) */
 /* Deprecated and will be removed.  Use png_permit_mng_features() instead. */
 deprecated void png_permit_empty_plte(png_structp png_ptr, int empty_plte_permitted);
-} else version(PNG_WRITE_EMPTY_PLTE_SUPPORTED) {
+} else static if (PNG_WRITE_EMPTY_PLTE_SUPPORTED) {
 /* Permit or disallow empty PLTE (0: not permitted, 1: permitted) */
 /* Deprecated and will be removed.  Use png_permit_mng_features() instead. */
 deprecated void png_permit_empty_plte(png_structp png_ptr, int empty_plte_permitted);
 } // PNG_WRITE_EMPTY_PLTE_SUPPORTED
 } else version(PNG_1_2_X) {
-version(PNG_READ_EMPTY_PLTE_SUPPORTED) {
+static if (PNG_READ_EMPTY_PLTE_SUPPORTED) {
 /* Permit or disallow empty PLTE (0: not permitted, 1: permitted) */
 /* Deprecated and will be removed.  Use png_permit_mng_features() instead. */
 deprecated void png_permit_empty_plte(png_structp png_ptr, int empty_plte_permitted);
-} else version(PNG_WRITE_EMPTY_PLTE_SUPPORTED) {
+} else static if (PNG_WRITE_EMPTY_PLTE_SUPPORTED) {
 /* Permit or disallow empty PLTE (0: not permitted, 1: permitted) */
 /* Deprecated and will be removed.  Use png_permit_mng_features() instead. */
 deprecated void png_permit_empty_plte(png_structp png_ptr, int empty_plte_permitted);
 } // PNG_WRITE_EMPTY_PLTE_SUPPORTED
 } // PNG_1_2_X
 
-version(PNG_WRITE_FLUSH_SUPPORTED) {
+static if (PNG_WRITE_FLUSH_SUPPORTED) {
 /* Set how many lines between output flushes - 0 for no flushing */
 void png_set_flush(png_structp png_ptr, int nrows);
 /* Flush the current PNG output buffer */
@@ -2103,7 +2099,7 @@ enum PNG_FILTER_VALUE_AVG =   3;
 enum PNG_FILTER_VALUE_PAETH = 4;
 enum PNG_FILTER_VALUE_LAST =  5;
 
-version(PNG_WRITE_WEIGHTED_FILTER_SUPPORTED) { /* EXPERIMENTAL */
+static if (PNG_WRITE_WEIGHTED_FILTER_SUPPORTED) { /* EXPERIMENTAL */
 /* The "heuristic_method" is given by one of the PNG_FILTER_HEURISTIC_
  * defines, either the default (minimum-sum-of-absolute-differences), or
  * the experimental method (weighted-minimum-sum-of-absolute-differences).
@@ -2132,7 +2128,7 @@ version(PNG_WRITE_WEIGHTED_FILTER_SUPPORTED) { /* EXPERIMENTAL */
  * the weights and costs are set to 1.0, this degenerates the WEIGHTED method
  * to the UNWEIGHTED method, but with added encoding time/computation.
  */
-version(PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_FLOATING_POINT_SUPPORTED) {
 void png_set_filter_heuristics(png_structp png_ptr,
       int heuristic_method,
       int num_weights,
@@ -2175,7 +2171,7 @@ void png_set_compression_method(png_structp png_ptr, int method);
  * more information.
  */
 
-version(PNG_STDIO_SUPPORTED) {
+static if (PNG_STDIO_SUPPORTED) {
 /* Initialize the input/output for the PNG file to the default functions. */
 void png_init_io(png_structp png_ptr, png_FILE_p fp);
 } // PNG_STDIO_SUPPORTED
@@ -2221,7 +2217,7 @@ void png_set_read_status_fn(png_structp png_ptr, png_read_status_ptr read_row_fn
 
 void png_set_write_status_fn(png_structp png_ptr, png_write_status_ptr write_row_fn);
 
-version(PNG_USER_MEM_SUPPORTED) {
+static if (PNG_USER_MEM_SUPPORTED) {
 /* Replace the default memory allocation functions with user supplied one(s). */
 void png_set_mem_fn(png_structp png_ptr,
          png_voidp mem_ptr,
@@ -2231,7 +2227,7 @@ void png_set_mem_fn(png_structp png_ptr,
 png_voidp png_get_mem_ptr(png_structp png_ptr);
 } // PNG_USER_MEM_SUPPORTED
 
-version(PNG_READ_USER_TRANSFORM_SUPPORTED) {
+static if (PNG_READ_USER_TRANSFORM_SUPPORTED) {
 void png_set_read_user_transform_fn(png_structp png_ptr,
       png_user_transform_ptr
       read_user_transform_fn);
@@ -2241,7 +2237,7 @@ void png_set_read_user_transform_fn(png_structp png_ptr,
       read_user_transform_fn);
 } // PNG_LEGACY_SUPPORTED
 
-version(PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
+static if (PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
 void png_set_write_user_transform_fn(png_structp png_ptr,
       png_user_transform_ptr write_user_transform_fn);
 } else version(PNG_LEGACY_SUPPORTED) {
@@ -2249,14 +2245,14 @@ void png_set_write_user_transform_fn(png_structp png_ptr,
       png_user_transform_ptr write_user_transform_fn);
 } // PNG_LEGACY_SUPPORTED
 
-version(PNG_READ_USER_TRANSFORM_SUPPORTED) {
+static if (PNG_READ_USER_TRANSFORM_SUPPORTED) {
 void png_set_user_transform_info(png_structp png_ptr,
       png_voidp user_transform_ptr,
       int user_transform_depth,
       int user_transform_channels);
 /* Return the user pointer associated with the user transform functions */
 png_voidp png_get_user_transform_ptr(png_structp png_ptr);
-} else version(PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
+} else static if (PNG_WRITE_USER_TRANSFORM_SUPPORTED) {
 void png_set_user_transform_info(png_structp png_ptr,
       png_voidp user_transform_ptr,
       int user_transform_depth,
@@ -2272,7 +2268,7 @@ void png_set_user_transform_info(png_structp png_ptr,
 png_voidp png_get_user_transform_ptr(png_structp png_ptr);
 } // PNG_LEGACY_SUPPORTED
 
-version(PNG_USER_CHUNKS_SUPPORTED) {
+static if (PNG_USER_CHUNKS_SUPPORTED) {
 void png_set_read_user_chunk_fn(png_structp png_ptr,
          png_voidp user_chunk_ptr,
          png_user_chunk_ptr read_user_chunk_fn);
@@ -2332,7 +2328,7 @@ void png_free_data (png_structp png_ptr,
       png_uint_32 free_me,
       int num);
 
-version(PNG_FREE_ME_SUPPORTED) {
+static if (PNG_FREE_ME_SUPPORTED) {
 /* Reassign responsibility for freeing existing data, whether allocated
  * by libpng or by the application
  */
@@ -2362,7 +2358,7 @@ enum PNG_FREE_TEXT = 0x4000;
 enum PNG_FREE_ALL = 0x7fff;
 enum PNG_FREE_MUL = 0x4220; /* PNG_FREE_SPLT|PNG_FREE_TEXT|PNG_FREE_UNKN */
 
-version(PNG_USER_MEM_SUPPORTED) {
+static if (PNG_USER_MEM_SUPPORTED) {
 png_voidp png_malloc_default(png_structp png_ptr, png_uint_32 size);
 void png_free_default (png_structp png_ptr, png_voidp ptr);
 } // PNG_USER_MEM_SUPPORTED
@@ -2396,7 +2392,7 @@ version(PNG_NO_WARNINGS) {
 /* Non-fatal error in libpng.  Can continue, but may have a problem. */
 void png_warning(png_structp png_ptr, png_const_charp warning_message);
 
-version(PNG_READ_SUPPORTED) {
+static if (PNG_READ_SUPPORTED) {
 /* Non-fatal error in libpng, chunk name is prepended to message. */
 void png_chunk_warning(png_structp png_ptr, png_const_charp warning_message);
 } // PNG_READ_SUPPORTED
@@ -2420,7 +2416,7 @@ png_uint_32 png_get_valid(png_structp png_ptr, png_infop info_ptr, png_uint_32 f
 /* Returns number of bytes needed to hold a transformed row. */
 png_uint_32 png_get_rowbytes(png_structp png_ptr, png_infop info_ptr);
 
-version(PNG_INFO_IMAGE_SUPPORTED) {
+static if (PNG_INFO_IMAGE_SUPPORTED) {
 /* Returns row_pointers, which is an array of pointers to scanlines that was
  * returned from png_read_png().
  */
@@ -2434,7 +2430,7 @@ void png_set_rows(png_structp png_ptr, png_infop info_ptr, png_bytepp row_pointe
 /* Returns number of color channels in image. */
 png_byte png_get_channels(png_structp png_ptr, png_infop info_ptr);
 
-version (PNG_EASY_ACCESS_SUPPORTED) {
+static if (PNG_EASY_ACCESS_SUPPORTED) {
    /* Returns image width in pixels. */
    png_uint_32 png_get_image_width(png_structp png_ptr, png_infop info_ptr);
 
@@ -2462,7 +2458,7 @@ version (PNG_EASY_ACCESS_SUPPORTED) {
    png_uint_32 png_get_y_pixels_per_meter(png_structp png_ptr, png_infop info_ptr);
 
    /* Returns pixel aspect ratio, computed from pHYs chunk data.  */
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       float png_get_pixel_aspect_ratio(png_structp png_ptr, png_infop info_ptr);
    }
 
@@ -2476,20 +2472,20 @@ version (PNG_EASY_ACCESS_SUPPORTED) {
 /* returns pointer to signature string read from png header */
 png_bytep png_get_signature(png_structp png_ptr, png_infop info_ptr);
 
-version (PNG_bKGD_SUPPORTED) {
+static if (PNG_bKGD_SUPPORTED) {
    png_uint_32 png_get_bKGD(png_structp png_ptr,
          png_infop info_ptr,
          png_color_16p *background);
 } // PNG_bKGD_SUPPORTED
 
-version (PNG_bKGD_SUPPORTED) {
+static if (PNG_bKGD_SUPPORTED) {
    void png_set_bKGD(png_structp png_ptr,
          png_infop info_ptr,
          png_color_16p background);
 } // PNG_bKGD_SUPPORTED
 
-version (PNG_cHRM_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_cHRM_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       png_uint_32 png_get_cHRM(png_structp png_ptr,
             png_infop info_ptr,
             double *white_x,
@@ -2502,7 +2498,7 @@ version (PNG_cHRM_SUPPORTED) {
             double *blue_y);
    } // PNG_FLOATING_POINT_SUPPORTED
 
-   version (PNG_FIXED_POINT_SUPPORTED) {
+   static if (PNG_FIXED_POINT_SUPPORTED) {
       png_uint_32 png_get_cHRM_fixed(png_structp png_ptr,
             png_infop info_ptr,
             png_fixed_point *int_white_x,
@@ -2516,8 +2512,8 @@ version (PNG_cHRM_SUPPORTED) {
    } // PNG_FIXED_POINT_SUPPORTED
 } // PNG_cHRM_SUPPORTED
 
-version (PNG_cHRM_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_cHRM_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       void png_set_cHRM(png_structp png_ptr,
             png_infop info_ptr,
             double white_x,
@@ -2529,7 +2525,7 @@ version (PNG_cHRM_SUPPORTED) {
             double blue_x,
             double blue_y);
    } // PNG_FLOATING_POINT_SUPPORTED
-   version (PNG_FIXED_POINT_SUPPORTED) {
+   static if (PNG_FIXED_POINT_SUPPORTED) {
       void png_set_cHRM_fixed(png_structp png_ptr,
             png_infop info_ptr,
             png_fixed_point int_white_x,
@@ -2543,8 +2539,8 @@ version (PNG_cHRM_SUPPORTED) {
    } // PNG_FIXED_POINT_SUPPORTED
 } // PNG_cHRM_SUPPORTED
 
-version (PNG_gAMA_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_gAMA_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       png_uint_32 png_get_gAMA(png_structp png_ptr,
             png_infop info_ptr,
             double *file_gamma);
@@ -2555,8 +2551,8 @@ version (PNG_gAMA_SUPPORTED) {
          png_fixed_point *int_file_gamma);
 } // PNG_gAMA_SUPPORTED
 
-version (PNG_gAMA_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_gAMA_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       void png_set_gAMA(png_structp png_ptr,
             png_infop info_ptr,
             double file_gamma);
@@ -2567,13 +2563,13 @@ version (PNG_gAMA_SUPPORTED) {
          png_fixed_point int_file_gamma);
 } // PNG_gAMA_SUPPORTED
 
-version (PNG_hIST_SUPPORTED) {
+static if (PNG_hIST_SUPPORTED) {
    png_uint_32 png_get_hIST(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_16p *hist);
 } // PNG_hIST_SUPPORTED
 
-version (PNG_hIST_SUPPORTED) {
+static if (PNG_hIST_SUPPORTED) {
    void png_set_hIST(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_16p hist);
@@ -2599,7 +2595,7 @@ void png_set_IHDR(png_structp png_ptr,
       int compression_method,
       int filter_method);
 
-version (PNG_oFFs_SUPPORTED) {
+static if (PNG_oFFs_SUPPORTED) {
    png_uint_32 png_get_oFFs(png_structp png_ptr,
          png_infop info_ptr,
          png_int_32 *offset_x,
@@ -2607,7 +2603,7 @@ version (PNG_oFFs_SUPPORTED) {
          int *unit_type);
 } // PNG_oFFs_SUPPORTED
 
-version (PNG_oFFs_SUPPORTED) {
+static if (PNG_oFFs_SUPPORTED) {
    void png_set_oFFs(png_structp png_ptr,
          png_infop info_ptr,
          png_int_32 offset_x,
@@ -2615,7 +2611,7 @@ version (PNG_oFFs_SUPPORTED) {
          int unit_type);
 } // PNG_oFFs_SUPPORTED
 
-version (PNG_pCAL_SUPPORTED) {
+static if (PNG_pCAL_SUPPORTED) {
    png_uint_32 png_get_pCAL(png_structp png_ptr,
          png_infop info_ptr,
          png_charp *purpose,
@@ -2627,7 +2623,7 @@ version (PNG_pCAL_SUPPORTED) {
          png_charpp *params);
 } // PNG_pCAL_SUPPORTED
 
-version (PNG_pCAL_SUPPORTED) {
+static if (PNG_pCAL_SUPPORTED) {
    void png_set_pCAL(png_structp png_ptr,
          png_infop info_ptr,
          png_charp purpose,
@@ -2639,7 +2635,7 @@ version (PNG_pCAL_SUPPORTED) {
          png_charpp params);
 } // PNG_pCAL_SUPPORTED
 
-version (PNG_pHYs_SUPPORTED) {
+static if (PNG_pHYs_SUPPORTED) {
    png_uint_32 png_get_pHYs(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 *res_x,
@@ -2647,7 +2643,7 @@ version (PNG_pHYs_SUPPORTED) {
          int *unit_type);
 } // PNG_pHYs_SUPPORTED
 
-version (PNG_pHYs_SUPPORTED) {
+static if (PNG_pHYs_SUPPORTED) {
    void png_set_pHYs(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 res_x,
@@ -2665,32 +2661,32 @@ void png_set_PLTE(png_structp png_ptr,
       png_colorp palette,
       int num_palette);
 
-version (PNG_sBIT_SUPPORTED) {
+static if (PNG_sBIT_SUPPORTED) {
    png_uint_32 png_get_sBIT(png_structp png_ptr,
          png_infop info_ptr,
          png_color_8p *sig_bit);
 } // PNG_sBIT_SUPPORTED
 
-version (PNG_sBIT_SUPPORTED) {
+static if (PNG_sBIT_SUPPORTED) {
    void png_set_sBIT(png_structp png_ptr,
          png_infop info_ptr,
          png_color_8p sig_bit);
 } // PNG_sBIT_SUPPORTED
 
-version (PNG_sRGB_SUPPORTED) {
+static if (PNG_sRGB_SUPPORTED) {
    png_uint_32 png_get_sRGB(png_structp png_ptr,
          png_infop info_ptr,
          int *intent);
 } // PNG_sRGB_SUPPORTED
 
-version (PNG_sRGB_SUPPORTED) {
+static if (PNG_sRGB_SUPPORTED) {
    void png_set_sRGB(png_structp png_ptr, png_infop info_ptr, int intent);
    void png_set_sRGB_gAMA_and_cHRM(png_structp png_ptr,
          png_infop info_ptr,
          int intent);
 } // PNG_sRGB_SUPPORTED
 
-version (PNG_iCCP_SUPPORTED) {
+static if (PNG_iCCP_SUPPORTED) {
    png_uint_32 png_get_iCCP(png_structp png_ptr,
          png_infop info_ptr,
          png_charpp name,
@@ -2700,7 +2696,7 @@ version (PNG_iCCP_SUPPORTED) {
    /* Note to maintainer: profile should be png_bytepp */
 } // PNG_iCCP_SUPPORTED
 
-version (PNG_iCCP_SUPPORTED) {
+static if (PNG_iCCP_SUPPORTED) {
    void png_set_iCCP(png_structp png_ptr,
          png_infop info_ptr,
          png_charp name,
@@ -2710,20 +2706,20 @@ version (PNG_iCCP_SUPPORTED) {
    /* Note to maintainer: profile should be png_bytep */
 } // PNG_iCCP_SUPPORTED
 
-version (PNG_sPLT_SUPPORTED) {
+static if (PNG_sPLT_SUPPORTED) {
    png_uint_32 png_get_sPLT(png_structp png_ptr,
          png_infop info_ptr,
          png_sPLT_tpp entries);
 } // PNG_sPLT_SUPPORTED
 
-version (PNG_sPLT_SUPPORTED) {
+static if (PNG_sPLT_SUPPORTED) {
    void png_set_sPLT(png_structp png_ptr,
          png_infop info_ptr,
          png_sPLT_tp entries,
          int nentries);
 } // PNG_sPLT_SUPPORTED
 
-version (PNG_TEXT_SUPPORTED) {
+static if (PNG_TEXT_SUPPORTED) {
 /* png_get_text also returns the number of text chunks in *num_text */
    png_uint_32 png_get_text(png_structp png_ptr,
          png_infop info_ptr,
@@ -2739,26 +2735,26 @@ version (PNG_TEXT_SUPPORTED) {
  *  they will never be NULL pointers.
  */
 
-version (PNG_TEXT_SUPPORTED) {
+static if (PNG_TEXT_SUPPORTED) {
    void png_set_text(png_structp png_ptr,
          png_infop info_ptr,
          png_textp text_ptr,
          int num_text);
 } // PNG_TEXT_SUPPORTED
 
-version (PNG_tIME_SUPPORTED) {
+static if (PNG_tIME_SUPPORTED) {
    png_uint_32 png_get_tIME(png_structp png_ptr,
          png_infop info_ptr,
          png_timep *mod_time);
 } // PNG_tIME_SUPPORTED
 
-version (PNG_tIME_SUPPORTED) {
+static if (PNG_tIME_SUPPORTED) {
    void png_set_tIME(png_structp png_ptr,
          png_infop info_ptr,
          png_timep mod_time);
 } // PNG_tIME_SUPPORTED
 
-version (PNG_tRNS_SUPPORTED) {
+static if (PNG_tRNS_SUPPORTED) {
    png_uint_32 png_get_tRNS(png_structp png_ptr,
          png_infop info_ptr,
          png_bytep *trans,
@@ -2766,7 +2762,7 @@ version (PNG_tRNS_SUPPORTED) {
          png_color_16p *trans_values);
 } // PNG_tRNS_SUPPORTED
 
-version (PNG_tRNS_SUPPORTED) {
+static if (PNG_tRNS_SUPPORTED) {
    void png_set_tRNS(png_structp png_ptr,
          png_infop info_ptr,
          png_bytep trans,
@@ -2774,18 +2770,18 @@ version (PNG_tRNS_SUPPORTED) {
          png_color_16p trans_values);
 } // PNG_tRNS_SUPPORTED
 
-version (PNG_tRNS_SUPPORTED) {
+static if (PNG_tRNS_SUPPORTED) {
 }
 
-version (PNG_sCAL_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_sCAL_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       png_uint_32 png_get_sCAL(png_structp png_ptr,
             png_infop info_ptr,
             int *unit,
             double *width,
             double *height);
    } else {
-      version (PNG_FIXED_POINT_SUPPORTED) {
+      static if (PNG_FIXED_POINT_SUPPORTED) {
          png_uint_32 png_get_sCAL_s(png_structp png_ptr,
                png_infop info_ptr,
                int *unit,
@@ -2795,15 +2791,15 @@ version (PNG_sCAL_SUPPORTED) {
    } // PNG_FLOATING_POINT_SUPPORTED
 } // PNG_sCAL_SUPPORTED
 
-version (PNG_sCAL_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_sCAL_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       void png_set_sCAL(png_structp png_ptr,
             png_infop info_ptr,
             int unit,
             double width,
             double height);
    } else {
-      version (PNG_FIXED_POINT_SUPPORTED) {
+      static if (PNG_FIXED_POINT_SUPPORTED) {
          void png_set_sCAL_s(png_structp png_ptr,
                png_infop info_ptr,
                int unit,
@@ -2813,7 +2809,7 @@ version (PNG_sCAL_SUPPORTED) {
    } // PNG_FLOATING_POINT_SUPPORTED
 } // PNG_sCAL_SUPPORTED
 
-version (PNG_HANDLE_AS_UNKNOWN_SUPPORTED) {
+static if (PNG_HANDLE_AS_UNKNOWN_SUPPORTED) {
 /* Provide a list of chunks and how they are to be handled, if the built-in
    handling or default unknown chunk handling is not desired.  Any chunks not
    listed will be handled in the default manner.  The IHDR and IEND chunks
@@ -2830,7 +2826,7 @@ version (PNG_HANDLE_AS_UNKNOWN_SUPPORTED) {
    int png_handle_as_unknown(png_structp png_ptr, png_bytep chunk_name);
 } // PNG_HANDLE_AS_UNKNOWN_SUPPORTED
 
-version (PNG_UNKNOWN_CHUNKS_SUPPORTED) {
+static if (PNG_UNKNOWN_CHUNKS_SUPPORTED) {
    void png_set_unknown_chunks(png_structp png_ptr,
          png_infop info_ptr,
          png_unknown_chunkp unknowns,
@@ -2850,7 +2846,7 @@ version (PNG_UNKNOWN_CHUNKS_SUPPORTED) {
  */
 void  png_set_invalid(png_structp png_ptr, png_infop info_ptr, int mask); 
 
-version (PNG_INFO_IMAGE_SUPPORTED) {
+static if (PNG_INFO_IMAGE_SUPPORTED) {
 /* The "params" pointer is currently not used and is for future expansion. */
    void png_read_png(png_structp png_ptr,
          png_infop info_ptr,
@@ -2974,7 +2970,7 @@ png_charp png_get_header_ver(png_structp png_ptr);
 png_charp png_get_header_version(png_structp png_ptr);
 png_charp png_get_libpng_ver(png_structp png_ptr);
 
-version (PNG_MNG_FEATURES_SUPPORTED) {
+static if (PNG_MNG_FEATURES_SUPPORTED) {
    png_uint_32 png_permit_mng_features(png_structp png_ptr,
          png_uint_32 mng_features_permitted);
 } // PNG_MNG_FEATURES_SUPPORTED
@@ -2986,8 +2982,8 @@ enum PNG_HANDLE_CHUNK_IF_SAFE =    2;
 enum PNG_HANDLE_CHUNK_ALWAYS =     3;
 
 /* Added to version 1.2.0 */
-version (PNG_ASSEMBLER_CODE_SUPPORTED) {
-   version (PNG_MMX_CODE_SUPPORTED) {
+static if (PNG_ASSEMBLER_CODE_SUPPORTED) {
+   static if (PNG_MMX_CODE_SUPPORTED) {
       enum PNG_ASM_FLAG_MMX_SUPPORT_COMPILED =  0x01;  /* not user-settable */
       enum PNG_ASM_FLAG_MMX_SUPPORT_IN_CPU =    0x02;  /* not user-settable */
       enum PNG_ASM_FLAG_MMX_READ_COMBINE_ROW =  0x04;
@@ -3051,12 +3047,12 @@ version (PNG_ASSEMBLER_CODE_SUPPORTED) {
 /* Strip the prepended error numbers ("#nnn ") from error and warning
  * messages before passing them to the error or warning handler.
  */
-version (PNG_ERROR_NUMBERS_SUPPORTED) {
+static if (PNG_ERROR_NUMBERS_SUPPORTED) {
    void png_set_strip_error_numbers(png_structp png_ptr, png_uint_32 strip_mode);
 } // PNG_ERROR_NUMBERS_SUPPORTED
 
 /* Added at libpng-1.2.6 */
-version (PNG_SET_USER_LIMITS_SUPPORTED) {
+static if (PNG_SET_USER_LIMITS_SUPPORTED) {
    void png_set_user_limits(png_structp png_ptr,
          png_uint_32 user_width_max,
          png_uint_32 user_height_max);
@@ -3067,7 +3063,7 @@ version (PNG_SET_USER_LIMITS_SUPPORTED) {
  * project defs
  */
 
-version (PNG_READ_COMPOSITE_NODIV_SUPPORTED) {
+static if (PNG_READ_COMPOSITE_NODIV_SUPPORTED) {
 /* With these routines we avoid an integer divide, which will be slower on
  * most machines.  However, it does take more operations than the corresponding
  * divide method, so it may be slower on a few RISC systems.  There are two
@@ -3329,7 +3325,7 @@ png_byte[5] PNG_tIME() { return [116,  73,  77,  69, '\0']; }
 png_byte[5] PNG_tRNS() { return [116,  82,  78,  83, '\0']; }
 png_byte[5] PNG_zTXt() { return [122,  84,  88, 116, '\0']; }
 
-version (PNG_USE_GLOBAL_ARRAYS) {
+static if (PNG_USE_GLOBAL_ARRAYS) {
    extern png_byte png_ihdr[5];
    extern png_byte png_idat[5];
    extern png_byte png_iend[5];
@@ -3358,11 +3354,11 @@ version (PNG_1_0_X) {
     * (old interface - DEPRECATED - use png_create_read_struct instead).
     */
    void png_read_init(png_structp png_ptr) {
-      png_read_init_3(&png_ptr, PNG_LIBPNG_VER_STRING, png_sizeof(png_struct));
+      png_read_init_3(&png_ptr, PNG_LIBPNG_VER_STRING, png_struct.sizeof);
    }
 } else version (PNG_1_2_X) {
    void png_read_init(png_structp png_ptr) {
-      png_read_init_3(&png_ptr, PNG_LIBPNG_VER_STRING, png_sizeof(png_struct));
+      png_read_init_3(&png_ptr, PNG_LIBPNG_VER_STRING, png_struct.sizeof);
    }
 } // PNG_1_2_X
 
@@ -3387,11 +3383,11 @@ version (PNG_1_0_X) {
     * (old interface - DEPRECATED - use png_create_write_struct instead).
     */
    void png_write_init(png_ptr) {
-      png_write_init_3(&png_ptr, PNG_LIBPNG_VER_STRING, png_sizeof(png_struct));
+      png_write_init_3(&png_ptr, PNG_LIBPNG_VER_STRING, png_struct.sizeof);
    }
 } else version (PNG_1_2_X) {
    void png_write_init(png_ptr) {
-      png_write_init_3(&png_ptr, PNG_LIBPNG_VER_STRING, png_sizeof(png_struct));
+      png_write_init_3(&png_ptr, PNG_LIBPNG_VER_STRING, png_struct.sizeof);
    }
 } // PNG_1_2_X
 
@@ -3455,8 +3451,8 @@ version (PNG_1_0_X) {
          png_bytep data,
          png_size_t length);
 
-   version (PNG_WRITE_FLUSH_SUPPORTED) {
-      version (PNG_STDIO_SUPPORTED) {
+   static if (PNG_WRITE_FLUSH_SUPPORTED) {
+      static if (PNG_STDIO_SUPPORTED) {
          deprecated void png_default_flush(png_structp png_ptr);
       } // PNG_STDIO_SUPPORTED
    } // PNG_WRITE_FLUSH_SUPPORTED
@@ -3475,25 +3471,25 @@ deprecated void png_read_data(png_structp png_ptr, png_bytep data, png_size_t le
 deprecated void png_crc_read(png_structp png_ptr, png_bytep buf, png_size_t length);
 
 /* Decompress data in a chunk that uses compression */
-version (PNG_zTXt_SUPPORTED) {
+static if (PNG_zTXt_SUPPORTED) {
 deprecated void png_decompress_chunk(png_structp png_ptr,
       int comp_type,
       png_size_t chunklength,
       png_size_t prefix_length,
       png_size_t *data_length);
-} else version (PNG_iTXt_SUPPORTED) {
+} else static if (PNG_iTXt_SUPPORTED) {
 deprecated void png_decompress_chunk(png_structp png_ptr,
       int comp_type,
       png_size_t chunklength,
       png_size_t prefix_length,
       png_size_t *data_length);
-} else version (PNG_iCCP_SUPPORTED) {
+} else static if (PNG_iCCP_SUPPORTED) {
 deprecated void png_decompress_chunk(png_structp png_ptr,
       int comp_type,
       png_size_t chunklength,
       png_size_t prefix_length,
       png_size_t *data_length);
-} else version (PNG_sPLT_SUPPORTED) {
+} else static if (PNG_sPLT_SUPPORTED) {
 deprecated void png_decompress_chunk(png_structp png_ptr,
       int comp_type,
       png_size_t chunklength,
@@ -3513,7 +3509,7 @@ deprecated int png_crc_error(png_structp png_ptr);
  */
 deprecated void png_calculate_crc(png_structp png_ptr, png_bytep ptr, png_size_t length);
 
-version (PNG_WRITE_FLUSH_SUPPORTED) {
+static if (PNG_WRITE_FLUSH_SUPPORTED) {
    deprecated void png_flush(png_structp png_ptr);
 } // PNG_WRITE_FLUSH_SUPPORTED
 
@@ -3544,25 +3540,25 @@ deprecated void png_write_IDAT(png_structp png_ptr,
 
 deprecated void png_write_IEND(png_structp png_ptr);
 
-version (PNG_WRITE_gAMA_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_WRITE_gAMA_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       deprecated void png_write_gAMA(png_structp png_ptr, double file_gamma);
    } // PNG_FLOATING_POINT_SUPPORTED
 
-   version (PNG_FIXED_POINT_SUPPORTED) {
+   static if (PNG_FIXED_POINT_SUPPORTED) {
       deprecated void png_write_gAMA_fixed(png_structp png_ptr,
             png_fixed_point file_gamma);
    } // PNG_FIXED_POINT_SUPPORTED
 } // PNG_WRITE_gAMA_SUPPORTED
 
-version (PNG_WRITE_sBIT_SUPPORTED) {
+static if (PNG_WRITE_sBIT_SUPPORTED) {
    deprecated void png_write_sBIT(png_structp png_ptr,
          png_color_8p sbit,
          int color_type);
 } // PNG_WRITE_sBIT_SUPPORTED
 
-version (PNG_WRITE_cHRM_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_WRITE_cHRM_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       deprecated void png_write_cHRM(png_structp png_ptr,
             double white_x,
             double white_y,
@@ -3574,7 +3570,7 @@ version (PNG_WRITE_cHRM_SUPPORTED) {
             double blue_y);
    } // PNG_FLOATING_POINT_SUPPORTED
 
-   version (PNG_FIXED_POINT_SUPPORTED) {
+   static if (PNG_FIXED_POINT_SUPPORTED) {
       deprecated void png_write_cHRM_fixed(png_structp png_ptr,
             png_fixed_point int_white_x,
             png_fixed_point int_white_y,
@@ -3588,11 +3584,11 @@ version (PNG_WRITE_cHRM_SUPPORTED) {
    } // PNG_FIXED_POINT_SUPPORTED
 } // PNG_WRITE_cHRM_SUPPORTED
 
-version (PNG_WRITE_sRGB_SUPPORTED) {
+static if (PNG_WRITE_sRGB_SUPPORTED) {
    deprecated void png_write_sRGB(png_structp png_ptr, int intent);
 } // PNG_WRITE_sRGB_SUPPORTED
 
-version (PNG_WRITE_iCCP_SUPPORTED) {
+static if (PNG_WRITE_iCCP_SUPPORTED) {
    deprecated void png_write_iCCP(png_structp png_ptr,
          png_charp name,
          int compression_type,
@@ -3601,11 +3597,11 @@ version (PNG_WRITE_iCCP_SUPPORTED) {
    /* Note to maintainer: profile should be png_bytep */
 } // PNG_WRITE_iCCP_SUPPORTED
 
-version (PNG_WRITE_sPLT_SUPPORTED) {
+static if (PNG_WRITE_sPLT_SUPPORTED) {
    deprecated void png_write_sPLT(png_structp png_ptr, png_sPLT_tp palette);
 } // PNG_WRITE_sPLT_SUPPORTED
 
-version (PNG_WRITE_tRNS_SUPPORTED) {
+static if (PNG_WRITE_tRNS_SUPPORTED) {
    deprecated void png_write_tRNS(png_structp png_ptr,
          png_bytep trans,
          png_color_16p values,
@@ -3613,42 +3609,42 @@ version (PNG_WRITE_tRNS_SUPPORTED) {
          int color_type);
 } // PNG_WRITE_tRNS_SUPPORTED
 
-version (PNG_WRITE_bKGD_SUPPORTED) {
+static if (PNG_WRITE_bKGD_SUPPORTED) {
    void png_write_bKGD(png_structp png_ptr,
          png_color_16p values,
          int color_type);
 } // PNG_WRITE_bKGD_SUPPORTED
 
-version (PNG_WRITE_hIST_SUPPORTED) {
+static if (PNG_WRITE_hIST_SUPPORTED) {
    deprecated void png_write_hIST(png_structp png_ptr, png_uint_16p hist, int num_hist);
 } // PNG_WRITE_hIST_SUPPORTED
 
-version (PNG_WRITE_TEXT_SUPPORTED) {
+static if (PNG_WRITE_TEXT_SUPPORTED) {
    deprecated png_size_t png_check_keyword(png_structp png_ptr,
          png_charp key,
          png_charpp new_key);
-} else version (PNG_WRITE_pCAL_SUPPORTED) {
+} else static if (PNG_WRITE_pCAL_SUPPORTED) {
    deprecated png_size_t png_check_keyword(png_structp png_ptr,
          png_charp key,
          png_charpp new_key);
-} else version (PNG_WRITE_iCCP_SUPPORTED) {
+} else static if (PNG_WRITE_iCCP_SUPPORTED) {
    deprecated png_size_t png_check_keyword(png_structp png_ptr,
          png_charp key,
          png_charpp new_key);
-} else version (PNG_WRITE_sPLT_SUPPORTED) {
+} else static if (PNG_WRITE_sPLT_SUPPORTED) {
    deprecated png_size_t png_check_keyword(png_structp png_ptr,
          png_charp key,
          png_charpp new_key);
 } // PNG_WRITE_sPLT_SUPPORTED
 
-version (PNG_WRITE_tEXt_SUPPORTED) {
+static if (PNG_WRITE_tEXt_SUPPORTED) {
    deprecated void png_write_tEXt(png_structp png_ptr,
          png_charp key,
          png_charp text,
          png_size_t text_len);
 } // PNG_WRITE_tEXt_SUPPORTED
 
-version (PNG_WRITE_zTXt_SUPPORTED) {
+static if (PNG_WRITE_zTXt_SUPPORTED) {
    deprecated void png_write_zTXt(png_structp png_ptr,
          png_charp key,
          png_charp text,
@@ -3656,7 +3652,7 @@ version (PNG_WRITE_zTXt_SUPPORTED) {
          int compression);
 } // PNG_WRITE_zTXt_SUPPORTED
 
-version (PNG_WRITE_iTXt_SUPPORTED) {
+static if (PNG_WRITE_iTXt_SUPPORTED) {
    deprecated void png_write_iTXt(png_structp png_ptr,
          int compression,
          png_charp key,
@@ -3665,21 +3661,21 @@ version (PNG_WRITE_iTXt_SUPPORTED) {
          png_charp text);
 } // PNG_WRITE_iTXt_SUPPORTED
 
-version (PNG_TEXT_SUPPORTED) { /* Added at version 1.0.14 and 1.2.4 */
+static if (PNG_TEXT_SUPPORTED) { /* Added at version 1.0.14 and 1.2.4 */
    deprecated int png_set_text_2(png_structp png_ptr,
          png_infop info_ptr,
          png_textp text_ptr,
          int num_text);
 } // PNG_TEXT_SUPPORTED
 
-version (PNG_WRITE_oFFs_SUPPORTED) {
+static if (PNG_WRITE_oFFs_SUPPORTED) {
    deprecated void png_write_oFFs(png_structp png_ptr,
          png_int_32 x_offset,
          png_int_32 y_offset,
          int unit_type);
 } // PNG_WRITE_oFFs_SUPPORTED
 
-version (PNG_WRITE_pCAL_SUPPORTED) {
+static if (PNG_WRITE_pCAL_SUPPORTED) {
    deprecated void png_write_pCAL(png_structp png_ptr,
          png_charp purpose,
          png_int_32 X0,
@@ -3690,21 +3686,21 @@ version (PNG_WRITE_pCAL_SUPPORTED) {
          png_charpp params);
 } // PNG_WRITE_pCAL_SUPPORTED
 
-version (PNG_WRITE_pHYs_SUPPORTED) {
+static if (PNG_WRITE_pHYs_SUPPORTED) {
    deprecated void png_write_pHYs(png_structp png_ptr,
          png_uint_32 x_pixels_per_unit,
          png_uint_32 y_pixels_per_unit,
          int unit_type);
 } // PNG_WRITE_pHYs_SUPPORTED
 
-version (PNG_WRITE_tIME_SUPPORTED) {
+static if (PNG_WRITE_tIME_SUPPORTED) {
    deprecated void png_write_tIME(png_structp png_ptr, png_timep mod_time);
 } // PNG_WRITE_tIME_SUPPORTED
 
-version (PNG_WRITE_sCAL_SUPPORTED) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+static if (PNG_WRITE_sCAL_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       version (PNG_NO_STDIO) {
-         version (PNG_FIXED_POINT_SUPPORTED) {
+         static if (PNG_FIXED_POINT_SUPPORTED) {
             deprecated void png_write_sCAL_s(png_structp png_ptr,
                   int unit,
                   png_charp width,
@@ -3717,7 +3713,7 @@ version (PNG_WRITE_sCAL_SUPPORTED) {
                double height);
       } // !PNG_NO_STDIO
    } else {
-      version (PNG_FIXED_POINT_SUPPORTED) {
+      static if (PNG_FIXED_POINT_SUPPORTED) {
          deprecated void png_write_sCAL_s(png_structp png_ptr,
                int unit,
                png_charp width,
@@ -3732,14 +3728,14 @@ deprecated void png_write_finish_row(png_structp png_ptr);
 /* Internal use only.   Called before first row of data */
 deprecated void png_write_start_row(png_structp png_ptr);
 
-version (PNG_READ_GAMMA_SUPPORTED) {
+static if (PNG_READ_GAMMA_SUPPORTED) {
    deprecated void png_build_gamma_table(png_structp png_ptr);
 } // PNG_READ_GAMMA_SUPPORTED
 
 /* Combine a row of data, dealing with alpha, etc. if requested */
 deprecated void png_combine_row(png_structp png_ptr, png_bytep row, int mask);
 
-version (PNG_READ_INTERLACING_SUPPORTED) {
+static if (PNG_READ_INTERLACING_SUPPORTED) {
    /* Expand an interlaced row */
    /* OLD pre-1.0.9 interface:
    PNG_EXTERN void png_do_read_interlace PNGARG((png_row_infop row_info,
@@ -3750,7 +3746,7 @@ version (PNG_READ_INTERLACING_SUPPORTED) {
 
 /* GRR TO DO (2.0 or whenever):  simplify other internal calling interfaces */
 
-version (PNG_WRITE_INTERLACING_SUPPORTED) {
+static if (PNG_WRITE_INTERLACING_SUPPORTED) {
 /* Grab pixels out of a row for an interlaced pass */
    deprecated void png_do_write_interlace(png_row_infop row_info,
          png_bytep row,
@@ -3780,82 +3776,82 @@ deprecated void png_read_start_row(png_structp png_ptr);
 deprecated void png_read_transform_info(png_structp png_ptr, png_infop info_ptr);
 
 /* These are the functions that do the transformations */
-version (PNG_READ_FILLER_SUPPORTED) {
+static if (PNG_READ_FILLER_SUPPORTED) {
    deprecated void png_do_read_filler(png_row_infop row_info,
          png_bytep row,
          png_uint_32 filler,
          png_uint_32 flags);
 } // PNG_READ_FILLER_SUPPORTED
 
-version (PNG_READ_SWAP_ALPHA_SUPPORTED) {
+static if (PNG_READ_SWAP_ALPHA_SUPPORTED) {
    deprecated void png_do_read_swap_alpha(png_row_infop row_info, png_bytep row);
 } // PNG_READ_SWAP_ALPHA_SUPPORTED
 
-version (PNG_WRITE_SWAP_ALPHA_SUPPORTED) {
+static if (PNG_WRITE_SWAP_ALPHA_SUPPORTED) {
    deprecated void png_do_write_swap_alpha(png_row_infop row_info, png_bytep row);
 } // PNG_WRITE_SWAP_ALPHA_SUPPORTED
 
-version (PNG_READ_INVERT_ALPHA_SUPPORTED) {
+static if (PNG_READ_INVERT_ALPHA_SUPPORTED) {
    deprecated void png_do_read_invert_alpha(png_row_infop row_info, png_bytep row);
 } // PNG_READ_INVERT_ALPHA_SUPPORTED
 
-version (PNG_WRITE_INVERT_ALPHA_SUPPORTED) {
+static if (PNG_WRITE_INVERT_ALPHA_SUPPORTED) {
    deprecated void png_do_write_invert_alpha(png_row_infop row_info, png_bytep row);
 } // PNG_WRITE_INVERT_ALPHA_SUPPORTED
 
-version (PNG_WRITE_FILLER_SUPPORTED) {
+static if (PNG_WRITE_FILLER_SUPPORTED) {
    deprecated void png_do_strip_filler(png_row_infop row_info,
          png_bytep row,
          png_uint_32 flags);
-} else version (PNG_READ_STRIP_ALPHA_SUPPORTED) {
+} else static if (PNG_READ_STRIP_ALPHA_SUPPORTED) {
    deprecated void png_do_strip_filler(png_row_infop row_info,
          png_bytep row,
          png_uint_32 flags);
 } // PNG_READ_STRIP_ALPHA_SUPPORTED
 
-version (PNG_READ_SWAP_SUPPORTED) {
+static if (PNG_READ_SWAP_SUPPORTED) {
    deprecated void png_do_swap(png_row_infop row_info, png_bytep row);
-} else version(PNG_WRITE_SWAP_SUPPORTED) {
+} else static if (PNG_WRITE_SWAP_SUPPORTED) {
    deprecated void png_do_swap(png_row_infop row_info, png_bytep row);
 } // PNG_WRITE_SWAP_SUPPORTED
 
-version (PNG_READ_PACKSWAP_SUPPORTED) {
+static if (PNG_READ_PACKSWAP_SUPPORTED) {
    deprecated void png_do_packswap(png_row_infop row_info, png_bytep row);
-} else version (PNG_WRITE_PACKSWAP_SUPPORTED) {
+} else static if (PNG_WRITE_PACKSWAP_SUPPORTED) {
    deprecated void png_do_packswap(png_row_infop row_info, png_bytep row);
 } // PNG_WRITE_PACKSWAP_SUPPORTED
 
-version (PNG_READ_RGB_TO_GRAY_SUPPORTED) {
+static if (PNG_READ_RGB_TO_GRAY_SUPPORTED) {
    deprecated int png_do_rgb_to_gray(png_structp png_ptr,
          png_row_infop row_info,
          png_bytep row);
 } // PNG_READ_RGB_TO_GRAY_SUPPORTED
 
-version (PNG_READ_GRAY_TO_RGB_SUPPORTED) {
+static if (PNG_READ_GRAY_TO_RGB_SUPPORTED) {
    deprecated void png_do_gray_to_rgb(png_row_infop row_info, png_bytep row);
 } // PNG_READ_GRAY_TO_RGB_SUPPORTED
 
-version (PNG_READ_PACK_SUPPORTED) {
+static if (PNG_READ_PACK_SUPPORTED) {
    deprecated void png_do_unpack(png_row_infop row_info, png_bytep row);
 } // PNG_READ_PACK_SUPPORTED
 
-version (PNG_READ_SHIFT_SUPPORTED) {
+static if (PNG_READ_SHIFT_SUPPORTED) {
    deprecated void png_do_unshift(png_row_infop row_info,
          png_bytep row,
          png_color_8p sig_bits);
 } // PNG_READ_SHIFT_SUPPORTED
 
-version (PNG_READ_INVERT_SUPPORTED) {
+static if (PNG_READ_INVERT_SUPPORTED) {
    deprecated void png_do_invert(png_row_infop row_info, png_bytep row);
-} else version (PNG_WRITE_INVERT_SUPPORTED) {
+} else static if (PNG_WRITE_INVERT_SUPPORTED) {
    deprecated void png_do_invert(png_row_infop row_info, png_bytep row);
 } // PNG_WRITE_INVERT_SUPPORTED
 
-version (PNG_READ_16_TO_8_SUPPORTED) {
+static if (PNG_READ_16_TO_8_SUPPORTED) {
    deprecated void png_do_chop(png_row_infop row_info, png_bytep row);
 } // PNG_READ_16_TO_8_SUPPORTED
 
-version (PNG_READ_DITHER_SUPPORTED) {
+static if (PNG_READ_DITHER_SUPPORTED) {
    deprecated void png_do_dither(png_row_infop row_info,
          png_bytep row,
          png_bytep palette_lookup,
@@ -3868,26 +3864,26 @@ version (PNG_READ_DITHER_SUPPORTED) {
    } // PNG_CORRECT_PALETTE_SUPPORTED
 } // PNG_READ_DITHER_SUPPORTED
 
-version (PNG_READ_BGR_SUPPORTED) {
+static if (PNG_READ_BGR_SUPPORTED) {
    deprecated void png_do_bgr(png_row_infop row_info, png_bytep row);
-} else version (PNG_WRITE_BGR_SUPPORTED) {
+} else static if (PNG_WRITE_BGR_SUPPORTED) {
    deprecated void png_do_bgr(png_row_infop row_info, png_bytep row);
 } // PNG_WRITE_BGR_SUPPORTED
 
-version (PNG_WRITE_PACK_SUPPORTED) {
+static if (PNG_WRITE_PACK_SUPPORTED) {
    deprecated void png_do_pack(png_row_infop row_info,
          png_bytep row,
          png_uint_32 bit_depth);
 } // PNG_WRITE_PACK_SUPPORTED
 
-version (PNG_WRITE_SHIFT_SUPPORTED) {
+static if (PNG_WRITE_SHIFT_SUPPORTED) {
    deprecated void png_do_shift(png_row_infop row_info,
          png_bytep row,
          png_color_8p bit_depth);
 } // PNG_WRITE_SHIFT_SUPPORTED
 
-version (PNG_READ_BACKGROUND_SUPPORTED) {
-   version (PNG_READ_GAMMA_SUPPORTED) {
+static if (PNG_READ_BACKGROUND_SUPPORTED) {
+   static if (PNG_READ_GAMMA_SUPPORTED) {
       deprecated void png_do_background(png_row_infop row_info,
             png_bytep row,
             png_color_16p trans_values,
@@ -3908,7 +3904,7 @@ version (PNG_READ_BACKGROUND_SUPPORTED) {
    } // PNG_READ_GAMMA_SUPPORTED
 } // PNG_READ_BACKGROUND_SUPPORTED
 
-version (PNG_READ_GAMMA_SUPPORTED) {
+static if (PNG_READ_GAMMA_SUPPORTED) {
    deprecated void png_do_gamma(png_row_infop row_info,
          png_bytep row,
          png_bytep gamma_table,
@@ -3916,7 +3912,7 @@ version (PNG_READ_GAMMA_SUPPORTED) {
          int gamma_shift);
 } // PNG_READ_GAMMA_SUPPORTED
 
-version (PNG_READ_EXPAND_SUPPORTED) {
+static if (PNG_READ_EXPAND_SUPPORTED) {
    deprecated void png_do_expand_palette(png_row_infop row_info,
          png_bytep row,
          png_colorp palette,
@@ -3942,101 +3938,101 @@ deprecated void png_handle_IEND(png_structp png_ptr,
       png_infop info_ptr,
       png_uint_32 length);
 
-version (PNG_READ_bKGD_SUPPORTED) {
+static if (PNG_READ_bKGD_SUPPORTED) {
    deprecated void png_handle_bKGD(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_bKGD_SUPPORTED
 
-version (PNG_READ_cHRM_SUPPORTED) {
+static if (PNG_READ_cHRM_SUPPORTED) {
    deprecated void png_handle_cHRM(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_cHRM_SUPPORTED
 
-version (PNG_READ_gAMA_SUPPORTED) {
+static if (PNG_READ_gAMA_SUPPORTED) {
    deprecated void png_handle_gAMA(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_gAMA_SUPPORTED
 
-version (PNG_READ_hIST_SUPPORTED) {
+static if (PNG_READ_hIST_SUPPORTED) {
    deprecated void png_handle_hIST(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_hIST_SUPPORTED
 
-version (PNG_READ_iCCP_SUPPORTED) {
+static if (PNG_READ_iCCP_SUPPORTED) {
    void png_handle_iCCP(png_structp png_ptr, png_infop info_ptr, png_uint_32 length);
 } // PNG_READ_iCCP_SUPPORTED
 
-version (PNG_READ_iTXt_SUPPORTED) {
+static if (PNG_READ_iTXt_SUPPORTED) {
    deprecated void png_handle_iTXt(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_iTXt_SUPPORTED
 
-version (PNG_READ_oFFs_SUPPORTED) {
+static if (PNG_READ_oFFs_SUPPORTED) {
    deprecated void png_handle_oFFs(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_oFFs_SUPPORTED
 
-version (PNG_READ_pCAL_SUPPORTED) {
+static if (PNG_READ_pCAL_SUPPORTED) {
    deprecated void png_handle_pCAL(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_pCAL_SUPPORTED
 
-version (PNG_READ_pHYs_SUPPORTED) {
+static if (PNG_READ_pHYs_SUPPORTED) {
    deprecated void png_handle_pHYs(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_pHYs_SUPPORTED
 
-version (PNG_READ_sBIT_SUPPORTED) {
+static if (PNG_READ_sBIT_SUPPORTED) {
    deprecated void png_handle_sBIT(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_sBIT_SUPPORTED
 
-version (PNG_READ_sCAL_SUPPORTED) {
+static if (PNG_READ_sCAL_SUPPORTED) {
    deprecated void png_handle_sCAL(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_sCAL_SUPPORTED
 
-version (PNG_READ_sPLT_SUPPORTED) {
+static if (PNG_READ_sPLT_SUPPORTED) {
    deprecated void png_handle_sPLT(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_sPLT_SUPPORTED
 
-version (PNG_READ_sRGB_SUPPORTED) {
+static if (PNG_READ_sRGB_SUPPORTED) {
    deprecated void png_handle_sRGB(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_sRGB_SUPPORTED
 
-version (PNG_READ_tEXt_SUPPORTED) {
+static if (PNG_READ_tEXt_SUPPORTED) {
    deprecated void png_handle_tEXt(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_tEXt_SUPPORTED
 
-version (PNG_READ_tIME_SUPPORTED) {
+static if (PNG_READ_tIME_SUPPORTED) {
    deprecated void png_handle_tIME(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_tIME_SUPPORTED
 
-version (PNG_READ_tRNS_SUPPORTED) {
+static if (PNG_READ_tRNS_SUPPORTED) {
    deprecated void png_handle_tRNS(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
 } // PNG_READ_tRNS_SUPPORTED
 
-version (PNG_READ_zTXt_SUPPORTED) {
+static if (PNG_READ_zTXt_SUPPORTED) {
    deprecated void png_handle_zTXt(png_structp png_ptr,
          png_infop info_ptr,
          png_uint_32 length);
@@ -4078,21 +4074,21 @@ version (PNG_PROGRESSIVE_READ_SUPPORTED) {
    deprecated void png_push_read_end(png_structp png_ptr, png_infop info_ptr);
    deprecated void png_process_some_data(png_structp png_ptr, png_infop info_ptr);
    deprecated void png_read_push_finish_row(png_structp png_ptr);
-   version (PNG_READ_tEXt_SUPPORTED) {
+   static if (PNG_READ_tEXt_SUPPORTED) {
       deprecated void png_push_handle_tEXt(png_structp png_ptr,
             png_infop info_ptr,
             png_uint_32 length);
       deprecated void png_push_read_tEXt(png_structp png_ptr,
             png_infop info_ptr);
    } // PNG_READ_tEXt_SUPPORTED
-   version (PNG_READ_zTXt_SUPPORTED) {
+   static if (PNG_READ_zTXt_SUPPORTED) {
       deprecated void png_push_handle_zTXt(png_structp png_ptr,
             png_infop info_ptr,
             png_uint_32 length);
       deprecated void png_push_read_zTXt(png_structp png_ptr,
             png_infop info_ptr);
    } // PNG_READ_zTXt_SUPPORTED
-   version (PNG_READ_iTXt_SUPPORTED) {
+   static if (PNG_READ_iTXt_SUPPORTED) {
       deprecated void png_push_handle_iTXt(png_structp png_ptr,
             png_infop info_ptr,
             png_uint_32 length);
@@ -4101,13 +4097,13 @@ version (PNG_PROGRESSIVE_READ_SUPPORTED) {
    } // PNG_READ_iTXt_SUPPORTED
 } // PNG_PROGRESSIVE_READ_SUPPORTED
 
-version (PNG_MNG_FEATURES_SUPPORTED) {
+static if (PNG_MNG_FEATURES_SUPPORTED) {
    deprecated void png_do_read_intrapixel(png_row_infop row_info, png_bytep row);
    deprecated void png_do_write_intrapixel(png_row_infop row_info, png_bytep row);
 } // PNG_MNG_FEATURES_SUPPORTED
 
-version (PNG_ASSEMBLER_CODE_SUPPORTED) {
-   version (PNG_MMX_CODE_SUPPORTED) {
+static if (PNG_ASSEMBLER_CODE_SUPPORTED) {
+   static if (PNG_MMX_CODE_SUPPORTED) {
       /* png.c */ /* PRIVATE */
       deprecated void png_init_mmx_flags(png_structp png_ptr);
    } // PNG_MMX_CODE_SUPPORTED
@@ -4115,14 +4111,14 @@ version (PNG_ASSEMBLER_CODE_SUPPORTED) {
 
 /* The following six functions will be exported in libpng-1.4.0. */
 version (PNG_INCH_CONVERSIONS) {
-   version (PNG_FLOATING_POINT_SUPPORTED) {
+   static if (PNG_FLOATING_POINT_SUPPORTED) {
       png_uint_32 png_get_pixels_per_inch(png_structp png_ptr, png_infop info_ptr);
       png_uint_32 png_get_x_pixels_per_inch(png_structp png_ptr, png_infop info_ptr);
       png_uint_32 png_get_y_pixels_per_inch(png_structp png_ptr, png_infop info_ptr);
       float png_get_x_offset_inches(png_structp png_ptr, png_infop info_ptr);
       float png_get_y_offset_inches(png_structp png_ptr, png_infop info_ptr);
 
-      version (PNG_pHYs_SUPPORTED) {
+      static if (PNG_pHYs_SUPPORTED) {
          png_uint_32 png_get_pHYs_dpi(png_structp png_ptr,
                png_infop info_ptr,
                png_uint_32 *res_x,
@@ -4136,7 +4132,7 @@ version (PNG_INCH_CONVERSIONS) {
 deprecated png_uint_32 png_read_chunk_header(png_structp png_ptr);
 
 /* Added at libpng version 1.2.34 */
-version (PNG_cHRM_SUPPORTED) {
+static if (PNG_cHRM_SUPPORTED) {
    deprecated int png_check_cHRM_fixed(png_structp png_ptr,
          png_fixed_point int_white_x,
          png_fixed_point int_white_y,
@@ -4148,8 +4144,8 @@ version (PNG_cHRM_SUPPORTED) {
          png_fixed_point int_blue_y);
 } // PNG_cHRM_SUPPORTED
 
-version (PNG_cHRM_SUPPORTED) {
-   version (PNG_CHECK_cHRM_SUPPORTED) {
+static if (PNG_cHRM_SUPPORTED) {
+   static if (PNG_CHECK_cHRM_SUPPORTED) {
       /* Added at libpng version 1.2.34 */
       deprecated void png_64bit_product(long v1,
             long v2,
